@@ -30,21 +30,11 @@
       padding: 0;
     }
 
-    /* ─── متغيرات التباعد الأساسية ─── */
-    :root {
-      --nav-h: 60px;
-      --fab-h: 52px;
-      --safe-b: env(safe-area-inset-bottom, 0px);
-      /* المسافة السفلية = شريط التنقل + FAB + مسافة إضافية بحجم بطاقة تقريبية */
-      --page-pb: calc(var(--nav-h) + var(--fab-h) + 80px + var(--safe-b));
-      --fab-bottom: calc(var(--nav-h) + 12px + var(--safe-b));
-    }
-
     body {
       font-family: 'Cairo', sans-serif;
       background: var(--bg);
       margin: 0;
-      padding: 16px 16px var(--page-pb);
+      padding: 16px 16px 140px;
       color: var(--text);
       font-variant-numeric: lining-nums tabular-nums;
       -moz-font-feature-settings: "lnum";
@@ -52,7 +42,6 @@
       font-feature-settings: "lnum";
       min-height: 100vh;
       overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
       position: relative;
     }
 
@@ -61,34 +50,14 @@
     body::-webkit-scrollbar-thumb { background: var(--primary-mid); border-radius: 4px; }
 
     /* ===================== الهيدر ===================== */
-    /* ─── هيدر ثابت ─── */
     header {
-      position: fixed;
-      top: 0;
-      left: 0; right: 0;
-      max-width: 600px;
-      margin: 0 auto;
-      height: 62px;
-      padding: 0 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-bottom: 14px;
       gap: 8px;
-      z-index: 900;
-      background: rgba(var(--bg-rgb,240 244 248), 0.92);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    /* تعويض الهيدر الثابت */
-    body { padding-top: calc(62px + 4px) !important; }
-
-    [data-theme="dark"] header,
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) header {
-        background: rgba(15 14 26 / 0.92);
-      }
+      position: relative;
+      z-index: 100;
     }
 
     .header-title-wrapper {
@@ -207,7 +176,7 @@
     /* ===================== FAB (زر الإضافة) ===================== */
     .fab {
       position: fixed;
-      bottom: var(--fab-bottom);
+      bottom: 80px;
       left: 50%;
       transform: translateX(-50%);
       background: var(--primary-mid);
@@ -221,7 +190,7 @@
       align-items: center;
       gap: 8px;
       box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.5);
-      z-index: 500;
+      z-index: 1000;
       cursor: pointer;
       transition: all 0.2s;
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -953,17 +922,17 @@
     .bottom-nav {
       position: fixed;
       bottom: 0;
-      left: 0; right: 0;
-      z-index: 1000;
-      height: calc(var(--nav-h) + var(--safe-b));
-      padding-bottom: var(--safe-b);
-      max-width: 600px;
-      margin: 0 auto;
-      background: rgba(var(--bg-rgb,240 244 248), 0.95);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      left: 0;
+      right: 0;
+      background: var(--card);
       border-top: 1px solid var(--border);
       display: flex;
+      z-index: 1000;
+      height: 60px;
+      max-width: 600px;
+      margin: 0 auto;
+      backdrop-filter: blur(10px);
+      background: rgba(var(--card-rgb), 0.95);
     }
 
     .nav-btn {
@@ -1101,20 +1070,20 @@
     .mbtn-ok     { background: var(--primary-mid); color: #fff; }
     .mbtn-del    { background: rgba(248, 113, 113, 0.2); color: #f87171; }
 
-   /* ===================== Toast Container ===================== */
+   /* ===================== Toast Container - مركّز تماماً ===================== */
 #toast-container {
   position: fixed;
-  top: 72px; /* أسفل الهيدر الثابت مباشرة */
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 9500;
+  z-index: 9000;
   display: flex;
   flex-direction: column;
   gap: 8px;
   pointer-events: none;
   align-items: center;
   width: max-content;
-  max-width: 90vw;
+  max-width: 92vw;
 }
 
 .toast {
@@ -1130,7 +1099,7 @@
   pointer-events: auto;
   text-align: center;
   white-space: nowrap;
-  max-width: 90vw;
+  max-width: 92vw;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -1142,26 +1111,6 @@
     .toast.success { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #6ee7b7; }
     .toast.error { background: rgba(248, 113, 113, 0.2); color: #f87171; border-color: #fecaca; }
     .toast.info { background: rgba(129, 140, 248, 0.2); color: #818cf8; border-color: #c7d2fe; }
-
-    /* رسالة تراجع عن الحذف */
-    .toast-undo {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .toast-undo-btn {
-      background: rgba(255,255,255,.25);
-      border: 1px solid currentColor;
-      border-radius: 20px;
-      padding: 3px 12px;
-      font-family: 'Cairo', sans-serif;
-      font-size: .78rem;
-      font-weight: 800;
-      color: inherit;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .toast-undo-btn:hover { background: rgba(255,255,255,.4); }
 
     /* ===================== Empty state ===================== */
     .empty-state {
@@ -1309,24 +1258,12 @@
     /* ===================== توافقية محسنة للشاشات الكبيرة ===================== */
     @media (min-width: 768px) {
       body { max-width: 600px; margin: 0 auto; }
-      .fab { max-width: 400px; left: 50%; }
+      .fab { max-width: 400px; }
       .settings-dropdown { left: auto; right: 0; }
-      .bottom-nav { left: 50%; right: auto; transform: translateX(-50%); width: 600px; }
     }
   </style>
 </head>
 <body>
-<!-- تطبيق الثيم فوراً لمنع الوميض -->
-<script>
-  (function() {
-    try {
-      const s = JSON.parse(localStorage.getItem('gt-dayn-backup') || '{}');
-      const savedTheme = (s.settings || []).find(x => x.key === 'theme')?.value;
-      const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
-    } catch(e) {}
-  })();
-</script>
 
 <!-- ===================== شاشة التحميل ===================== -->
 <div id="loading-screen">
@@ -1490,56 +1427,6 @@
   </button>
 </div>
 
-<!-- صفحة ملف الشخص -->
-<div id="page-person-profile" class="page" style="display:none;">
-  <!-- هيدر الصفحة -->
-  <div style="background:var(--primary);border-radius:24px;padding:18px 20px;margin-bottom:14px;">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-      <button onclick="backToPersons()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
-      <div id="profile-avatar" style="width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:900;flex-shrink:0;"></div>
-      <div style="flex:1;min-width:0;">
-        <div id="profile-name" style="font-size:1.1rem;font-weight:900;color:#fff;"></div>
-        <div id="profile-phone-row" style="display:none;align-items:center;gap:6px;margin-top:2px;">
-          <span id="profile-phone-lbl" style="font-size:.72rem;color:rgba(255,255,255,.55);"></span>
-          <button id="profile-copy-phone" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:2px 7px;font-size:.65rem;cursor:pointer;">نسخ</button>
-        </div>
-      </div>
-      <button onclick="sharePersonReport()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:7px 14px;border-radius:20px;font-family:'Cairo',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;flex-shrink:0;">
-        <i class="fa-solid fa-share-nodes"></i> تقرير
-      </button>
-    </div>
-    <!-- إحصاء ثلاثي -->
-    <div style="display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;">
-      <div style="text-align:center;padding:0 6px;">
-        <div style="font-size:.65rem;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:3px;">لي عنده</div>
-        <div id="profile-receivable" style="font-size:1.05rem;font-weight:900;color:#a5b4fc;">0</div>
-      </div>
-      <div style="background:rgba(255,255,255,.12);margin:2px 0;"></div>
-      <div style="text-align:center;padding:0 6px;">
-        <div style="font-size:.65rem;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:3px;">الصافي</div>
-        <div id="profile-net" style="font-size:1.05rem;font-weight:900;color:#fff;">0</div>
-      </div>
-      <div style="background:rgba(255,255,255,.12);margin:2px 0;"></div>
-      <div style="text-align:center;padding:0 6px;">
-        <div style="font-size:.65rem;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:3px;">عليّ له</div>
-        <div id="profile-payable" style="font-size:1.05rem;font-weight:900;color:#fca5a5;">0</div>
-      </div>
-    </div>
-  </div>
-  <!-- تبويبات -->
-  <div class="tab-bar" id="profile-tabs" style="margin-bottom:14px;">
-    <button class="tab-btn active" onclick="setProfileTab('all',this)">الكل</button>
-    <button class="tab-btn" onclick="setProfileTab('receivable',this)">لي عند</button>
-    <button class="tab-btn" onclick="setProfileTab('payable',this)">عليّ</button>
-  </div>
-  <div id="profile-debts-container"></div>
-  <button class="fab" onclick="openAddDebtModal(window._profilePersonId)">
-    <i class="fa-solid fa-plus"></i> دين جديد
-  </button>
-</div>
-
 <!-- صفحة الميزانية -->
 <div id="page-budget" class="page" style="display:none;">
   <div class="budget-header" id="budget-header">
@@ -1603,26 +1490,11 @@
     <h3>التفضيلات</h3>
     <div class="setting-row" onclick="openCurrencyModal()">
       <div class="setting-label"><i class="fa-solid fa-coins" style="margin-left:8px;"></i>العملة</div>
-      <div class="setting-value" id="currency-lbl">د.م (MAD)</div>
+      <div class="setting-value" id="currency-lbl">ر.س (SAR)</div>
     </div>
     <div class="setting-row" onclick="toggleTheme()">
       <div class="setting-label"><i class="fa-solid fa-moon" style="margin-left:8px;"></i>الوضع الليلي</div>
       <div class="toggle" id="theme-toggle"></div>
-    </div>
-  </div>
-
-  <div class="settings-section">
-    <h3>الأمان والخصوصية</h3>
-    <div class="setting-row" onclick="openPwdSetup()">
-      <div>
-        <div class="setting-label"><i class="fa-solid fa-lock" style="margin-left:8px;"></i>قفل التطبيق بكلمة مرور</div>
-        <div class="setting-value" id="pwd-status">غير مفعّل</div>
-      </div>
-      <div class="toggle" id="pwd-toggle"></div>
-    </div>
-    <div id="change-pwd-row" class="setting-row" style="display:none;" onclick="openChangePwd()">
-      <div class="setting-label"><i class="fa-solid fa-rotate" style="margin-left:8px;"></i>تغيير كلمة المرور</div>
-      <i class="fa-solid fa-chevron-left" style="color:var(--text-3);font-size:.8rem;"></i>
     </div>
   </div>
 
@@ -1952,50 +1824,13 @@
   </div>
 </div>
 
-<!-- شاشة قفل التطبيق -->
-<div id="lock-screen" style="display:none;position:fixed;inset:0;background:#1e1b4b;z-index:99999;flex-direction:column;align-items:center;justify-content:center;">
-  <div style="font-size:2rem;font-weight:900;color:#fff;margin-bottom:4px;">GT-<span style="color:#a5b4fc;">DAYN</span></div>
-  <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:32px;">أداة إدارة الديون و المصاريف</div>
-  <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px 24px;width:min(320px,88vw);text-align:center;">
-    <i class="fa-solid fa-lock" style="font-size:2rem;color:#a5b4fc;margin-bottom:12px;display:block;"></i>
-    <div style="font-size:.88rem;color:rgba(255,255,255,.65);margin-bottom:18px;font-weight:600;">أدخل كلمة المرور للمتابعة</div>
-    <input type="password" id="lock-pwd-inp"
-      style="width:100%;padding:13px 16px;border:1px solid rgba(255,255,255,.2);border-radius:12px;background:rgba(255,255,255,.08);color:#fff;font-family:'Cairo',sans-serif;font-size:1rem;text-align:center;letter-spacing:4px;margin-bottom:8px;"
-      placeholder="••••••••"
-      onkeydown="if(event.key==='Enter')unlockApp()">
-    <div id="lock-error" style="font-size:.75rem;color:#fca5a5;min-height:20px;margin-bottom:10px;"></div>
-    <button onclick="unlockApp()" style="width:100%;padding:13px;background:#4338ca;border:none;border-radius:12px;color:#fff;font-family:'Cairo',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;">
-      <i class="fa-solid fa-unlock-keyhole"></i> فتح التطبيق
-    </button>
-  </div>
-</div>
-
-<!-- نافذة كلمة المرور -->
-<div class="modal-overlay" id="pwd-modal" onclick="closeAllModals()">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-top">
-      <div class="modal-ico" style="background:rgba(129,140,248,.2);color:#818cf8;"><i class="fa-solid fa-key"></i></div>
-      <div><p class="modal-title" id="pwd-modal-title">تعيين كلمة مرور</p></div>
-    </div>
-    <div id="pwd-current-wrap" style="display:none;">
-      <div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="pwd-current" placeholder="كلمة المرور الحالية"></div>
-    </div>
-    <div class="input-wrap"><i class="fa-solid fa-key"></i><input type="password" id="pwd-new" placeholder="كلمة المرور الجديدة (6 أحرف+)"></div>
-    <div class="input-wrap"><i class="fa-solid fa-check-double"></i><input type="password" id="pwd-confirm" placeholder="تأكيد كلمة المرور"></div>
-    <div class="modal-btns">
-      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إلغاء</button>
-      <button class="mbtn mbtn-ok" id="pwd-save-btn" onclick="savePwd()">حفظ</button>
-    </div>
-  </div>
-</div>
-
-<!-- حاوية الإشعارات -->
+<!-- حاوية الإشعارات (في الأعلى) -->
 <div id="toast-container"></div>
 
 <script type="module">
   // ======================== استيراد الوحدات ========================
   import { app } from './src/core/App.js';
-  import { fmt, initial, avatarColor, toast, toastUndo, openModal, closeAllModals, initViewportFix, initDragSort, confirm, applyTheme } from './src/ui/components/ui.js';
+  import { fmt, initial, avatarColor, toast, openModal, closeAllModals, initViewportFix, initDragSort, confirm, applyTheme } from './src/ui/components/ui.js';
   import { downloadShareCard, shareCard } from './src/ui/components/shareCard.js';
 
   // ======================== وعد لتهيئة التطبيق ========================
@@ -2051,23 +1886,9 @@
   async function saveDataToStorage() {
     try {
       await waitForApp();
-      const [persons, debts, payments, scheduled,
-             budget, categories, expenses, settings] = await Promise.all([
-        app.db.query('SELECT * FROM persons'),
-        app.db.query('SELECT * FROM debts'),
-        app.db.query('SELECT * FROM payments'),
-        app.db.query('SELECT * FROM scheduled_payments'),
-        app.db.query('SELECT * FROM budget_months'),
-        app.db.query('SELECT * FROM budget_categories'),
-        app.db.query('SELECT * FROM budget_expenses'),
-        app.db.query('SELECT * FROM settings'),
-      ]);
-      const data = JSON.stringify({
-        version:'1.0.0', exportedAt: new Date().toISOString(),
-        persons, debts, payments, scheduled,
-        budget, categories, expenses, settings
-      });
+      const data = await app.exportJSON();
       localStorage.setItem(STORAGE_KEY, data);
+      console.log('✅ تم حفظ البيانات تلقائياً', new Date().toLocaleString());
       return true;
     } catch (e) {
       console.warn('⚠️ فشل حفظ البيانات:', e);
@@ -2080,59 +1901,40 @@
       await waitForApp();
       const saved = localStorage.getItem(STORAGE_KEY);
       if (!saved) return false;
+
       const data = JSON.parse(saved);
+
       const personsCount = await app.db.query('SELECT COUNT(*) as count FROM persons');
-      if (personsCount[0]?.count > 0) return false; // البيانات موجودة، لا حاجة للاستعادة
+      if (personsCount[0]?.count === 0) {
+        toast('جاري استعادة البيانات المحفوظة...', 'info');
 
-      toast('جاري استعادة البيانات المحفوظة...', 'info');
+        for (const p of data.persons || []) {
+          await app.db.run(
+            `INSERT OR IGNORE INTO persons (id, name, avatar, phone, note, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [p.id, p.name, p.avatar, p.phone, p.note, p.created_at, p.updated_at]
+          );
+        }
 
-      for (const p of data.persons ?? []) {
-        await app.db.run(
-          `INSERT OR IGNORE INTO persons (id,name,avatar,phone,note,created_at,updated_at) VALUES (?,?,?,?,?,?,?)`,
-          [p.id,p.name,p.avatar,p.phone,p.note,p.created_at,p.updated_at]
-        );
+        for (const d of data.debts || []) {
+          await app.db.run(
+            `INSERT OR IGNORE INTO debts (id, person_id, type, title, amount, remaining, note, status, sort_order, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [d.id, d.person_id, d.type, d.title, d.amount, d.remaining, d.note, d.status, d.sort_order, d.created_at, d.updated_at]
+          );
+        }
+
+        for (const p of data.payments || []) {
+          await app.db.run(
+            `INSERT OR IGNORE INTO payments (id, debt_id, amount, note, paid_at, created_at)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [p.id, p.debt_id, p.amount, p.note, p.paid_at, p.created_at]
+          );
+        }
+
+        toast('✅ تم استعادة البيانات بنجاح', 'success');
+        return true;
       }
-      for (const d of data.debts ?? []) {
-        await app.db.run(
-          `INSERT OR IGNORE INTO debts (id,person_id,type,title,amount,remaining,note,status,sort_order,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-          [d.id,d.person_id,d.type,d.title,d.amount,d.remaining,d.note,d.status,d.sort_order,d.created_at,d.updated_at]
-        );
-      }
-      for (const p of data.payments ?? []) {
-        await app.db.run(
-          `INSERT OR IGNORE INTO payments (id,debt_id,amount,note,paid_at,created_at) VALUES (?,?,?,?,?,?)`,
-          [p.id,p.debt_id,p.amount,p.note,p.paid_at,p.created_at]
-        );
-      }
-      for (const s of data.scheduled ?? []) {
-        await app.db.run(
-          `INSERT OR IGNORE INTO scheduled_payments (id,debt_id,amount,due_date,status,created_at) VALUES (?,?,?,?,?,?)`,
-          [s.id,s.debt_id,s.amount,s.due_date,s.status,s.created_at]
-        );
-      }
-      for (const bm of data.budget ?? []) {
-        await app.db.run(
-          `INSERT OR IGNORE INTO budget_months (id,month,income,spent,note,created_at) VALUES (?,?,?,?,?,?)`,
-          [bm.id,bm.month,bm.income,bm.spent,bm.note,bm.created_at]
-        );
-      }
-      for (const c of data.categories ?? []) {
-        await app.db.run(
-          `INSERT OR IGNORE INTO budget_categories (id,month_id,name,icon,color,budget_cap,due_day,sort_order,linked_type) VALUES (?,?,?,?,?,?,?,?,?)`,
-          [c.id,c.month_id,c.name,c.icon,c.color,c.budget_cap,c.due_day,c.sort_order,c.linked_type]
-        );
-      }
-      for (const ex of data.expenses ?? []) {
-        await app.db.run(
-          `INSERT OR IGNORE INTO budget_expenses (id,category_id,month_id,amount,note,expense_date,payment_id,created_at) VALUES (?,?,?,?,?,?,?,?)`,
-          [ex.id,ex.category_id,ex.month_id,ex.amount,ex.note,ex.expense_date,ex.payment_id,ex.created_at]
-        );
-      }
-      for (const s of data.settings ?? []) {
-        await app.db.run(`INSERT OR REPLACE INTO settings (key,value) VALUES (?,?)`, [s.key,s.value]);
-      }
-      toast('✅ تم استعادة البيانات بنجاح', 'success');
-      return true;
     } catch (e) {
       console.warn('⚠️ فشل استعادة البيانات:', e);
     }
@@ -2173,33 +1975,16 @@ window.addEventListener('gt-dayn:ready', async () => {
   console.log('✅ التطبيق جاهز');
 
   try {
-    // قراءة الإعدادات المحفوظة
+    // قراءة الإعدادات
     const settings = await app.db.query(`SELECT key,value FROM settings`);
-    const savedTheme    = settings.find(s => s.key === 'theme')?.value;
-    const savedCurrency = settings.find(s => s.key === 'currency_sym')?.value;
-
-    // الثيم: المحفوظ أولاً، ثم تفضيل النظام
-    if (savedTheme) {
-      applyTheme(savedTheme);
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      applyTheme(prefersDark ? 'dark' : 'light');
-      await app.db.run(`UPDATE settings SET value=? WHERE key='theme'`, [prefersDark ? 'dark' : 'light']);
-    }
-
-    // العملة: المحفوظة أولاً، ثم الدرهم المغربي افتراضياً
-    if (savedCurrency) {
-      currency = savedCurrency;
-    } else {
-      currency = 'د.م';
-      await app.db.run(`UPDATE settings SET value='MAD'  WHERE key='currency'`);
-      await app.db.run(`UPDATE settings SET value='د.م' WHERE key='currency_sym'`);
+    for (const s of settings) {
+      if (s.key === 'currency_sym') currency = s.value;
+      if (s.key === 'theme') applyTheme(s.value);
     }
 
     // تحديث واجهة المستخدم
-    const curObj = CURRENCIES.find(c => c.sym === currency) || { sym: currency, code: '' };
-    document.getElementById('currency-lbl').textContent     = `${curObj.sym} (${curObj.code})`;
-    document.getElementById('dropdown-currency').textContent = curObj.sym;
+    document.getElementById('currency-lbl').textContent = currency;
+    document.getElementById('dropdown-currency').textContent = currency;
     updateThemeToggle();
     updateDropdownStatus();
 
@@ -2536,10 +2321,7 @@ window.addEventListener('gt-dayn:ready', async () => {
     }
 
     if (editDebtId) {
-      // تضمين النوع في التعديل أيضاً
-      await app.debts.updateDebt(editDebtId, {
-        title, amount, note: note || null, type: debtType
-      });
+      await app.debts.updateDebt(editDebtId, { title, amount, note: note || null });
     } else {
       await app.debts.addDebt({ personId, type: debtType, title, amount, note: note || null });
     }
@@ -2621,19 +2403,11 @@ window.addEventListener('gt-dayn:ready', async () => {
 
     document.getElementById('epay-del-btn').onclick = async () => {
       await waitForApp();
-      const pay = (await app.db.query(`SELECT * FROM payments WHERE id=?`, [payId]))[0];
+      if (!await confirm('حذف هذه الدفعة؟')) return;
       await app.debts.deletePayment(payId);
       closeAllModals();
+      toast('تم الحذف', 'success');
       await renderDebts();
-      const undid = await toastUndo(`تم حذف الدفعة ${fmt(pay?.amount || 0, currency)}`, 5000);
-      if (undid && pay) {
-        await app.db.run(
-          `INSERT INTO payments (id,debt_id,amount,note,paid_at,created_at) VALUES (?,?,?,?,?,?)`,
-          [pay.id, pay.debt_id, pay.amount, pay.note, pay.paid_at, pay.created_at]
-        );
-        toast('تم الاستعادة ✓', 'success');
-        await renderDebts();
-      }
     };
 
     openModal('edit-pay-modal');
@@ -2683,21 +2457,10 @@ window.addEventListener('gt-dayn:ready', async () => {
 
   window.doDelete = async function(debtId) {
     await waitForApp();
-    const debt = await app.debts.getDebt(debtId);
-    if (!debt) return;
-    // نحذف فوراً ونعطي فرصة التراجع
+    if (!await confirm('حذف هذا الدين؟')) return;
     await app.debts.deleteDebt(debtId);
+    toast('تم الحذف', 'success');
     await renderDebts();
-    const undid = await toastUndo(`تم حذف "${debt.title || debt.person_name}"`, 5000);
-    if (undid) {
-      // إعادة الإدراج
-      await app.db.run(
-        `INSERT INTO debts (id,person_id,type,title,amount,remaining,note,status,sort_order,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-        [debt.id,debt.person_id,debt.type,debt.title,debt.amount,debt.remaining,debt.note,debt.status,debt.sort_order,debt.created_at,debt.updated_at]
-      );
-      toast('تم الاستعادة ✓', 'success');
-      await renderDebts();
-    }
   };
 
   window.doShare = async function(debtId) {
@@ -2733,13 +2496,7 @@ window.addEventListener('gt-dayn:ready', async () => {
           <div class="avatar" style="background:${bg};color:${fg};width:42px;height:42px;border-radius:12px;">${initial(p.name)}</div>
           <div style="flex:1;">
             <div class="person-name">${p.name}</div>
-            <div style="display:flex;align-items:center;gap:6px;margin-top:1px;">
-              <div class="person-count">${p.active_count || 0} معاملة نشطة</div>
-              ${p.phone ? `<button class="__copy-phone" data-phone="${p.phone}"
-                style="background:none;border:1px solid var(--border);border-radius:6px;padding:1px 7px;font-size:.6rem;color:var(--text-3);cursor:pointer;font-family:'Cairo',sans-serif;">
-                <i class="fa-solid fa-phone"></i> نسخ
-              </button>` : ''}
-            </div>
+            <div class="person-count">${p.active_count || 0} معاملة نشطة</div>
           </div>
           <div class="net-badge ${net > 0 ? 'net-pos' : net < 0 ? 'net-neg' : 'net-zero'}">
             ${net > 0 ? '+' : ''}${fmt(net, currency)}
@@ -2764,29 +2521,12 @@ window.addEventListener('gt-dayn:ready', async () => {
             <div class="pstat-val" style="color:${net >= 0 ? '#10b981' : '#f87171'};">${fmt(Math.abs(net), currency)}</div>
           </div>
         </div>`;
-      // زر نسخ الهاتف
-      const copyBtn = card.querySelector('.__copy-phone');
-      if (copyBtn) {
-        copyBtn.addEventListener('click', e => {
-          e.stopPropagation();
-          const ph = copyBtn.dataset.phone;
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(ph).then(() => toast('تم نسخ الرقم ✓', 'success'));
-          } else {
-            // fallback
-            const ta = document.createElement('textarea');
-            ta.value = ph; document.body.appendChild(ta);
-            ta.select(); document.execCommand('copy');
-            ta.remove(); toast('تم نسخ الرقم ✓', 'success');
-          }
-        });
-      }
       // زر التعديل
       card.querySelector('.__edit-person-btn').addEventListener('click', e => {
         e.stopPropagation();
         openEditPersonModal(p);
       });
-      card.addEventListener('click', () => openPersonProfile(p));
+      card.addEventListener('click', () => viewPersonDebts(p.id, p.name));
       container.appendChild(card);
     });
   }
@@ -2838,20 +2578,10 @@ window.addEventListener('gt-dayn:ready', async () => {
 
   window.deletePerson = async function() {
     if (!editPersonId) return;
+    if (!await confirm('حذف هذا الشخص وجميع ديونه؟ لا يمكن التراجع.')) return;
     await waitForApp();
-    const persons = await app.debts.getPersons();
-    const person  = persons.find(p => p.id === editPersonId);
-    const debts   = await app.debts.getDebts({ personId: editPersonId });
-
-    // نجمع البيانات قبل الحذف
-    const snapshot = { person, debts: [] };
-    for (const d of debts) {
-      const payments   = await app.debts.getPayments(d.id);
-      const scheduled  = await app.debts.getScheduled(d.id);
-      snapshot.debts.push({ ...d, payments, scheduled });
-    }
-
-    // حذف كل شيء
+    // حذف مدفوعات الديون أولاً
+    const debts = await app.debts.getDebts({ personId: editPersonId });
     for (const d of debts) {
       await app.db.run(`DELETE FROM scheduled_payments WHERE debt_id=?`, [d.id]);
       await app.db.run(`DELETE FROM payments WHERE debt_id=?`, [d.id]);
@@ -2859,32 +2589,8 @@ window.addEventListener('gt-dayn:ready', async () => {
     await app.db.run(`DELETE FROM debts WHERE person_id=?`, [editPersonId]);
     await app.db.run(`DELETE FROM persons WHERE id=?`, [editPersonId]);
     closeAllModals();
+    toast('تم حذف الشخص', 'success');
     await renderPersons();
-
-    const undid = await toastUndo(`تم حذف "${person?.name}"`, 5000);
-    if (undid) {
-      // استعادة كاملة
-      await app.db.run(
-        `INSERT INTO persons (id,name,avatar,phone,note,created_at,updated_at) VALUES (?,?,?,?,?,?,?)`,
-        [person.id, person.name, person.avatar, person.phone, person.note, person.created_at, person.updated_at]
-      );
-      for (const d of snapshot.debts) {
-        await app.db.run(
-          `INSERT INTO debts (id,person_id,type,title,amount,remaining,note,status,sort_order,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-          [d.id,d.person_id,d.type,d.title,d.amount,d.remaining,d.note,d.status,d.sort_order,d.created_at,d.updated_at]
-        );
-        for (const p of d.payments) {
-          await app.db.run(`INSERT INTO payments (id,debt_id,amount,note,paid_at,created_at) VALUES (?,?,?,?,?,?)`,
-            [p.id,p.debt_id,p.amount,p.note,p.paid_at,p.created_at]);
-        }
-        for (const s of d.scheduled) {
-          await app.db.run(`INSERT INTO scheduled_payments (id,debt_id,amount,due_date,status,created_at) VALUES (?,?,?,?,?,?)`,
-            [s.id,s.debt_id,s.amount,s.due_date,s.status,s.created_at]);
-        }
-      }
-      toast('تم الاستعادة ✓', 'success');
-      await renderPersons();
-    }
   };
 
   async function savePerson() {
@@ -3014,14 +2720,9 @@ window.addEventListener('gt-dayn:ready', async () => {
         <div class="cat-top">
           <div class="cat-icon" style="background:${color}20;font-size:18px;">${icon}</div>
           <div class="cat-name">${c.name}</div>
-          <button class="__cat-add-exp bcard"
-            style="padding:6px 10px;font-size:.72rem;background:${color}15;color:${color};border:1px solid ${color}40;">
+          <button class="bcard" style="padding:6px 10px;font-size:.72rem;background:${color}15;color:${color};border:1px solid ${color}40;"
+            onclick="event.stopPropagation();openAddExpenseModal(${c.id},'${c.name}','${icon}')">
             <i class="fa-solid fa-plus"></i> مصروف
-          </button>
-          <button class="__cat-edit"
-            style="background:none;border:1px solid var(--border);border-radius:8px;padding:5px 9px;color:var(--text-3);cursor:pointer;font-size:.8rem;flex-shrink:0;"
-            title="تعديل الفئة">
-            <i class="fa-solid fa-pen-to-square"></i>
           </button>
         </div>
         <div class="cat-nums">
@@ -3032,21 +2733,19 @@ window.addEventListener('gt-dayn:ready', async () => {
           <div class="progress-fill" style="width:${pct}%;background:${overBudget?'#f87171':color};transition:width .5s;"></div>
         </div>
         ${c.linked_type==='debt_payments'?`<div class="linked-tag"><i class="fa-solid fa-link"></i> مرتبط بالديون</div>`:''}
-        ${dueDay ? `<div class="due-badge ${overDue?'overdue':'upcoming'}">
+        ${dueDay ? `<div class="due-badge ${overDue?'overdue':dueSoon?'upcoming':'upcoming'}">
           <i class="fa-solid fa-clock"></i>
-          ${overDue ? 'تجاوز يوم '+dueDay : 'يستحق يوم '+dueDay}
+          ${overDue ? 'تجاوز موعد الاستحقاق يوم '+dueDay : 'يستحق يوم '+dueDay+' من الشهر'}
         </div>` : ''}
         <div id="expenses-${c.id}" style="margin-top:8px;display:none;"></div>`;
-
-      el.querySelector('.__cat-add-exp').addEventListener('click', ev => {
-        ev.stopPropagation();
-        openAddExpenseModal(c.id, c.name, icon);
-      });
-      el.querySelector('.__cat-edit').addEventListener('click', ev => {
-        ev.stopPropagation();
-        openEditCatModal(c);
-      });
       el.addEventListener('click', () => toggleCatExpenses(c.id));
+      container_onclick_edit: {
+        // زر تعديل عند الضغط المطول
+        let pressTimer;
+        el.addEventListener('pointerdown', () => { pressTimer = setTimeout(() => openEditCatModal(c), 600); });
+        el.addEventListener('pointerup', () => clearTimeout(pressTimer));
+        el.addEventListener('pointercancel', () => clearTimeout(pressTimer));
+      }
       cc.appendChild(el);
     });
   }
@@ -3055,121 +2754,36 @@ window.addEventListener('gt-dayn:ready', async () => {
     const div = document.getElementById(`expenses-${catId}`);
     if (!div) return;
     if (div.style.display === 'block') { div.style.display = 'none'; return; }
-    await loadCatExpenses(catId);
-  }
-
-  async function loadCatExpenses(catId) {
-    const div = document.getElementById(`expenses-${catId}`);
-    if (!div) return;
     div.style.display = 'block';
-    div.innerHTML = `<div style="font-size:.72rem;color:var(--text-3);text-align:center;padding:6px;">جاري التحميل...</div>`;
+    div.innerHTML = `<div style="font-size:.72rem;color:var(--text-3);text-align:center;padding:4px;">جاري التحميل...</div>`;
     try {
-      const expenses = await app.budget.getExpenses(catId);
+      const expenses = await app.db.query(
+        `SELECT be.*, bc.name as cat_name FROM budget_expenses be
+         JOIN budget_categories bc ON bc.id = be.category_id
+         WHERE be.category_id = ? ORDER BY be.expense_date DESC LIMIT 10`, [catId]
+      );
       if (!expenses.length) {
-        div.innerHTML = `<div style="font-size:.72rem;color:var(--text-3);text-align:center;padding:10px 0;border-top:1px dashed var(--border);">لا توجد مصاريف مسجلة بعد</div>`;
+        div.innerHTML = `<div style="font-size:.72rem;color:var(--text-3);text-align:center;padding:8px 0;">لا توجد مصاريف مسجلة</div>`;
         return;
       }
-      div.innerHTML = '';
-      const hdr = document.createElement('div');
-      hdr.style.cssText = 'font-size:.68rem;font-weight:700;color:var(--text-3);padding:6px 0 4px;border-top:1px dashed var(--border);';
-      hdr.textContent = `آخر ${expenses.length} مصاريف`;
-      div.appendChild(hdr);
-
-      expenses.forEach(e => {
-        const row = document.createElement('div');
-        row.className = 'expense-item';
-        row.innerHTML = `
+      div.innerHTML = expenses.map(e => `
+        <div class="expense-item">
           <span class="expense-amt">-${fmt(e.amount, currency)}</span>
           <span class="expense-note">${e.note || '—'}</span>
           <span class="expense-date">${e.expense_date || ''}</span>
-          <button data-eid="${e.id}" data-cid="${catId}" class="__exp-edit"
-            style="background:none;border:none;color:var(--text-3);cursor:pointer;padding:2px 5px;font-size:.8rem;" title="تعديل">
-            <i class="fa-solid fa-pen-to-square"></i>
-          </button>`;
-        row.querySelector('.__exp-edit').addEventListener('click', ev => {
-          ev.stopPropagation();
-          openEditExpenseModal(e, catId);
-        });
-        div.appendChild(row);
-      });
+        </div>`).join('');
     } catch (err) {
       div.innerHTML = `<div style="font-size:.72rem;color:#f87171;text-align:center;padding:4px;">خطأ في التحميل</div>`;
     }
   }
 
-  // ======================== تعديل مصروف ========================
-  let editExpenseId = null;
-  let editExpenseCatId = null;
-
-  function openEditExpenseModal(e, catId) {
-    editExpenseId    = e.id;
-    editExpenseCatId = catId;
-    document.getElementById('expense-cat-name').textContent = 'تعديل المصروف';
-    document.getElementById('expense-amount-inp').value = e.amount;
-    document.getElementById('expense-note-inp').value   = e.note   || '';
-    document.getElementById('expense-date-inp').value   = e.expense_date || new Date().toISOString().slice(0,10);
-    document.getElementById('expense-save-btn').onclick = saveEditExpense;
-    // إظهار زر الحذف
-    let delBtn = document.getElementById('expense-del-btn');
-    if (!delBtn) {
-      delBtn = document.createElement('button');
-      delBtn.id = 'expense-del-btn';
-      delBtn.className = 'mbtn mbtn-del';
-      delBtn.textContent = 'حذف';
-      document.querySelector('#expense-modal .modal-btns').insertBefore(
-        delBtn, document.getElementById('expense-save-btn')
-      );
-    }
-    delBtn.style.display = '';
-    delBtn.onclick = deleteExpense;
-    openModal('expense-modal');
-  }
-
-  async function saveEditExpense() {
-    await waitForApp();
-    const amount = +document.getElementById('expense-amount-inp').value;
-    const note   = document.getElementById('expense-note-inp').value.trim();
-    const date   = document.getElementById('expense-date-inp').value;
-    if (!amount || amount <= 0) { toast('أدخل المبلغ', 'error'); return; }
-    await app.db.run(
-      `UPDATE budget_expenses SET amount=?,note=?,expense_date=? WHERE id=?`,
-      [amount, note||null, date, editExpenseId]
-    );
-    closeAllModals();
-    toast('تم التعديل ✓', 'success');
-    await renderBudget();
-    await loadCatExpenses(editExpenseCatId);
-  }
-
-  async function deleteExpense() {
-    await waitForApp();
-    const exp = (await app.db.query(`SELECT * FROM budget_expenses WHERE id=?`, [editExpenseId]))[0];
-    await app.budget.deleteExpense(editExpenseId);
-    closeAllModals();
-    await renderBudget();
-    const undid = await toastUndo(`تم حذف مصروف ${fmt(exp?.amount || 0, currency)}`, 5000);
-    if (undid && exp) {
-      await app.db.run(
-        `INSERT INTO budget_expenses (id,category_id,month_id,amount,note,expense_date,payment_id,created_at) VALUES (?,?,?,?,?,?,?,?)`,
-        [exp.id,exp.category_id,exp.month_id,exp.amount,exp.note,exp.expense_date,exp.payment_id,exp.created_at]
-      );
-      toast('تم الاستعادة ✓', 'success');
-      await renderBudget();
-    }
-  }
-
   // ======================== مودال المصروف ========================
   window.openAddExpenseModal = function(catId, catName, icon) {
-    editExpenseId    = null;
-    editExpenseCatId = catId;
     document.getElementById('expense-cat-name').textContent = `${icon} ${catName}`;
     document.getElementById('expense-amount-inp').value = '';
     document.getElementById('expense-note-inp').value   = '';
     document.getElementById('expense-date-inp').value   = new Date().toISOString().slice(0,10);
     document.getElementById('expense-save-btn').onclick = () => saveExpense(catId);
-    // إخفاء زر الحذف
-    const delBtn = document.getElementById('expense-del-btn');
-    if (delBtn) delBtn.style.display = 'none';
     openModal('expense-modal');
   };
 
@@ -3288,32 +2902,11 @@ window.addEventListener('gt-dayn:ready', async () => {
 
   window.deleteCat = async function() {
     if (!editCatId) return;
-    await waitForApp();
-    const cats     = await app.budget.getCategories(currentMonth);
-    const cat      = cats.find(c => c.id === editCatId);
-    const expenses = await app.budget.getExpenses(editCatId);
-
+    if (!await confirm('حذف هذه الفئة وكل مصاريفها؟')) return;
     await app.budget.deleteCategory(editCatId);
     closeAllModals();
+    toast('تم الحذف', 'success');
     await renderBudget();
-
-    const undid = await toastUndo(`تم حذف فئة "${cat?.name}"`, 5000);
-    if (undid) {
-      // استعادة الفئة
-      const bm = await app.budget.getOrCreateMonth(currentMonth);
-      await app.db.run(
-        `INSERT INTO budget_categories (id,month_id,name,icon,color,budget_cap,due_day,sort_order,linked_type) VALUES (?,?,?,?,?,?,?,?,?)`,
-        [cat.id,bm.id,cat.name,cat.icon,cat.color,cat.budget_cap,cat.due_day,cat.sort_order,cat.linked_type]
-      );
-      for (const e of expenses) {
-        await app.db.run(
-          `INSERT INTO budget_expenses (id,category_id,month_id,amount,note,expense_date,payment_id,created_at) VALUES (?,?,?,?,?,?,?,?)`,
-          [e.id,e.category_id,e.month_id,e.amount,e.note,e.expense_date,e.payment_id,e.created_at]
-        );
-      }
-      toast('تم الاستعادة ✓', 'success');
-      await renderBudget();
-    }
   };
 
   // ======================== دوال الإعدادات ========================
@@ -3382,31 +2975,15 @@ window.addEventListener('gt-dayn:ready', async () => {
 
   window.exportJSON = async function() {
     await waitForApp();
-    // تصدير شامل: كل البيانات + الإعدادات
-    const [persons, debts, payments, scheduled,
-           budget, categories, expenses, settings] = await Promise.all([
-      app.db.query('SELECT * FROM persons'),
-      app.db.query('SELECT * FROM debts'),
-      app.db.query('SELECT * FROM payments'),
-      app.db.query('SELECT * FROM scheduled_payments'),
-      app.db.query('SELECT * FROM budget_months'),
-      app.db.query('SELECT * FROM budget_categories'),
-      app.db.query('SELECT * FROM budget_expenses'),
-      app.db.query('SELECT * FROM settings'),
-    ]);
-    const payload = JSON.stringify({
-      version: '1.0.0', exportedAt: new Date().toISOString(),
-      persons, debts, payments, scheduled,
-      budget, categories, expenses, settings
-    }, null, 2);
-    const blob = new Blob([payload], { type: 'application/json' });
+    const json = await app.exportJSON();
+    const blob = new Blob([json], { type: 'application/json' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href     = url;
     a.download = `gt-dayn-backup-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 3000);
-    toast('تم التصدير الكامل ✓', 'success');
+    toast('تم التصدير ✓', 'success');
   };
 
   window.exportSQLite = async function() {
@@ -3425,88 +3002,49 @@ window.addEventListener('gt-dayn:ready', async () => {
   window.importJSON = async function(e) {
     const file = e.target.files[0];
     if (!file) return;
+
     try {
       await waitForApp();
       const text = await file.text();
       const data = JSON.parse(text);
-      toast('جاري الاستيراد الكامل...', 'info');
+      toast('جاري الاستيراد...', 'info');
 
-      for (const p of data.persons ?? []) {
+      for (const p of data.persons  ?? []) {
         await app.db.run(
-          `INSERT OR REPLACE INTO persons (id,name,avatar,phone,note,created_at,updated_at)
-           VALUES (?,?,?,?,?,?,?)`,
-          [p.id,p.name,p.avatar,p.phone,p.note,p.created_at,p.updated_at]
+          `INSERT OR REPLACE INTO persons (id, name, avatar, phone, note, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [p.id, p.name, p.avatar, p.phone, p.note, p.created_at, p.updated_at]
         );
       }
+
       for (const d of data.debts ?? []) {
         await app.db.run(
-          `INSERT OR REPLACE INTO debts (id,person_id,type,title,amount,remaining,note,status,sort_order,created_at,updated_at)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-          [d.id,d.person_id,d.type,d.title,d.amount,d.remaining,d.note,d.status,d.sort_order,d.created_at,d.updated_at]
+          `INSERT OR REPLACE INTO debts (id, person_id, type, title, amount, remaining, note, status, sort_order, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [d.id, d.person_id, d.type, d.title, d.amount, d.remaining, d.note, d.status, d.sort_order, d.created_at, d.updated_at]
         );
       }
+
       for (const p of data.payments ?? []) {
         await app.db.run(
-          `INSERT OR REPLACE INTO payments (id,debt_id,amount,note,paid_at,created_at)
-           VALUES (?,?,?,?,?,?)`,
-          [p.id,p.debt_id,p.amount,p.note,p.paid_at,p.created_at]
+          `INSERT OR REPLACE INTO payments (id, debt_id, amount, note, paid_at, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [p.id, p.debt_id, p.amount, p.note, p.paid_at, p.created_at]
         );
       }
-      for (const s of data.scheduled ?? []) {
-        await app.db.run(
-          `INSERT OR REPLACE INTO scheduled_payments (id,debt_id,amount,due_date,status,created_at)
-           VALUES (?,?,?,?,?,?)`,
-          [s.id,s.debt_id,s.amount,s.due_date,s.status,s.created_at]
-        );
-      }
-      // ميزانية
-      for (const bm of data.budget ?? []) {
-        await app.db.run(
-          `INSERT OR REPLACE INTO budget_months (id,month,income,spent,note,created_at)
-           VALUES (?,?,?,?,?,?)`,
-          [bm.id,bm.month,bm.income,bm.spent,bm.note,bm.created_at]
-        );
-      }
-      for (const c of data.categories ?? []) {
-        await app.db.run(
-          `INSERT OR REPLACE INTO budget_categories (id,month_id,name,icon,color,budget_cap,due_day,sort_order,linked_type)
-           VALUES (?,?,?,?,?,?,?,?,?)`,
-          [c.id,c.month_id,c.name,c.icon,c.color,c.budget_cap,c.due_day,c.sort_order,c.linked_type]
-        );
-      }
-      for (const ex of data.expenses ?? []) {
-        await app.db.run(
-          `INSERT OR REPLACE INTO budget_expenses (id,category_id,month_id,amount,note,expense_date,payment_id,created_at)
-           VALUES (?,?,?,?,?,?,?,?)`,
-          [ex.id,ex.category_id,ex.month_id,ex.amount,ex.note,ex.expense_date,ex.payment_id,ex.created_at]
-        );
-      }
-      // إعدادات
-      for (const s of data.settings ?? []) {
-        await app.db.run(
-          `INSERT OR REPLACE INTO settings (key,value) VALUES (?,?)`,
-          [s.key, s.value]
-        );
-        if (s.key === 'currency_sym') { currency = s.value; }
-        if (s.key === 'theme') applyTheme(s.value);
-      }
-      document.getElementById('currency-lbl').textContent = currency;
-      document.getElementById('dropdown-currency').textContent = currency;
-      updateThemeToggle();
 
-      toast('تم الاستيراد الكامل ✓', 'success');
+      toast('تم الاستيراد ✓', 'success');
       await renderCurrentPage();
     } catch (err) {
       toast('خطأ في الاستيراد: ' + err.message, 'error');
     }
+
     e.target.value = '';
   };
 
   window.confirmReset = async function() {
     await waitForApp();
-    if (!await confirm('سيُحذف كل شيء نهائياً — الديون والأشخاص والميزانية كاملاً. هل أنت متأكد؟')) return;
-    // تأكيد مزدوج لعملية حساسة جداً
-    if (!await confirm('⚠️ لا يمكن التراجع عن هذه العملية. تأكيد نهائي؟')) return;
+    if (!await confirm('سيُحذف كل شيء نهائياً. هل أنت متأكد تماماً؟')) return;
 
     await app.db.run('DELETE FROM budget_expenses');
     await app.db.run('DELETE FROM budget_categories');
@@ -3516,7 +3054,6 @@ window.addEventListener('gt-dayn:ready', async () => {
     await app.db.run('DELETE FROM debts');
     await app.db.run('DELETE FROM persons');
 
-    localStorage.removeItem('gt-dayn-backup');
     toast('تم حذف كل البيانات', 'error');
     await renderCurrentPage();
   };
@@ -3539,7 +3076,69 @@ window.addEventListener('gt-dayn:ready', async () => {
     toggle.classList.toggle('on', isDark);
   }
 
-  // الثيم يُطبَّق في كتلة التهيئة بناءً على الإعداد المحفوظ أو تفضيل النظام
+  (function detectSystemTheme() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark && !document.documentElement.getAttribute('data-theme')) {
+      applyTheme('dark');
+    }
+  })();
+
+  // ======================== قائمة العملات ========================
+  const CURRENCIES = [
+    { code:'MAD', sym:'د.م', name:'درهم مغربي', flag:'🇲🇦' },
+    { code:'DZD', sym:'د.ج', name:'دينار جزائري', flag:'🇩🇿' },
+    { code:'TND', sym:'د.ت', name:'دينار تونسي', flag:'🇹🇳' },
+    { code:'LYD', sym:'د.ل', name:'دينار ليبي', flag:'🇱🇾' },
+    { code:'EGP', sym:'ج.م', name:'جنيه مصري', flag:'🇪🇬' },
+    { code:'SDG', sym:'ج.س', name:'جنيه سوداني', flag:'🇸🇩' },
+    { code:'JOD', sym:'د.ا', name:'دينار أردني', flag:'🇯🇴' },
+    { code:'SYP', sym:'ل.س', name:'ليرة سورية', flag:'🇸🇾' },
+    { code:'LBP', sym:'ل.ل', name:'ليرة لبنانية', flag:'🇱🇧' },
+    { code:'IQD', sym:'ع.د', name:'دينار عراقي', flag:'🇮🇶' },
+    { code:'KWD', sym:'د.ك', name:'دينار كويتي', flag:'🇰🇼' },
+    { code:'SA', sym:'ر.س', name:'ريال سعودي', flag:'🇸🇦' },
+    { code:'YER', sym:'ر.ي', name:'ريال يمني', flag:'🇾🇪' },
+    { code:'OMR', sym:'ر.ع', name:'ريال عماني', flag:'🇴🇲' },
+    { code:'AED', sym:'د.إ', name:'درهم إماراتي', flag:'🇦🇪' },
+    { code:'QAR', sym:'ر.ق', name:'ريال قطري', flag:'🇶🇦' },
+    { code:'BHD', sym:'د.ب', name:'دينار بحريني', flag:'🇧🇭' },
+    { code:'PSE', sym:'₪', name:'شيكل (فلسطين)', flag:'🇵🇸' },
+    { code:'USD', sym:'$', name:'دولار أمريكي', flag:'🇺🇸' },
+    { code:'EUR', sym:'€', name:'يورو', flag:'🇪🇺' },
+    { code:'GBP', sym:'£', name:'جنيه إسترليني', flag:'🇬🇧' },
+    { code:'TRY', sym:'₺', name:'ليرة تركية', flag:'🇹🇷' },
+  ];
+
+  window.openCurrencyModal = function() {
+    const list = document.getElementById('currency-list');
+    list.innerHTML = '';
+
+    CURRENCIES.forEach(c => {
+      const item = document.createElement('div');
+      item.className = 'currency-item';
+      item.innerHTML = `
+        <span class="currency-flag">${c.flag}</span>
+        <span class="currency-name">${c.name}</span>
+        <span class="currency-symbol">${c.sym}</span>
+      `;
+
+      item.onclick = async () => {
+        await waitForApp();
+        currency = c.sym;
+        await app.db.run(`UPDATE settings SET value=? WHERE key='currency'`, [c.code]);
+        await app.db.run(`UPDATE settings SET value=? WHERE key='currency_sym'`, [c.sym]);
+        document.getElementById('currency-lbl').textContent = `${c.sym} (${c.code})`;
+        document.getElementById('dropdown-currency').textContent = c.sym;
+        closeAllModals();
+        toast(`العملة: ${c.name} (${c.sym})`, 'success');
+        await renderCurrentPage();
+      };
+
+      list.appendChild(item);
+    });
+
+    openModal('currency-modal');
+  };
 
   // ======================== صفحة الإحصائيات ========================
   async function renderStatistics() {
@@ -3668,329 +3267,9 @@ window.addEventListener('gt-dayn:ready', async () => {
   window.exportSQLite = exportSQLite;
   window.importJSON = importJSON;
   window.confirmReset = confirmReset;
-  // window.openCurrencyModal — مُعرَّفة لاحقاً مع CURRENCIES الموسّعة
+  window.openCurrencyModal = openCurrencyModal;
   window.applySnowballStrategy = applySnowballStrategy;
   window.applyPriorityStrategy = applyPriorityStrategy;
-
-  // ══════════════════════════════════════════════════════════════
-  // ██ قائمة العملات الموسّعة (MAD أولاً كافتراضي)
-  // ══════════════════════════════════════════════════════════════
-  const CURRENCIES = [
-    { code:'MAD', sym:'د.م',  name:'درهم مغربي',        flag:'🇲🇦' },
-    { code:'DZD', sym:'د.ج',  name:'دينار جزائري',       flag:'🇩🇿' },
-    { code:'TND', sym:'د.ت',  name:'دينار تونسي',        flag:'🇹🇳' },
-    { code:'LYD', sym:'د.ل',  name:'دينار ليبي',         flag:'🇱🇾' },
-    { code:'MRU', sym:'أ.م',  name:'أوقية موريتانية',    flag:'🇲🇷' },
-    { code:'EGP', sym:'ج.م',  name:'جنيه مصري',          flag:'🇪🇬' },
-    { code:'SDG', sym:'ج.س',  name:'جنيه سوداني',        flag:'🇸🇩' },
-    { code:'SOS', sym:'ش.ص',  name:'شلن صومالي',         flag:'🇸🇴' },
-    { code:'DJF', sym:'ف.ج',  name:'فرنك جيبوتي',        flag:'🇩🇯' },
-    { code:'KMF', sym:'ف.ق',  name:'فرنك جزر القمر',     flag:'🇰🇲' },
-    { code:'JOD', sym:'د.ا',  name:'دينار أردني',         flag:'🇯🇴' },
-    { code:'SYP', sym:'ل.س',  name:'ليرة سورية',         flag:'🇸🇾' },
-    { code:'LBP', sym:'ل.ل',  name:'ليرة لبنانية',       flag:'🇱🇧' },
-    { code:'IQD', sym:'ع.د',  name:'دينار عراقي',         flag:'🇮🇶' },
-    { code:'PSE', sym:'₪',    name:'شيكل (فلسطين)',       flag:'🇵🇸' },
-    { code:'SAR', sym:'ر.س',  name:'ريال سعودي',          flag:'🇸🇦' },
-    { code:'AED', sym:'د.إ',  name:'درهم إماراتي',        flag:'🇦🇪' },
-    { code:'KWD', sym:'د.ك',  name:'دينار كويتي',         flag:'🇰🇼' },
-    { code:'QAR', sym:'ر.ق',  name:'ريال قطري',           flag:'🇶🇦' },
-    { code:'BHD', sym:'د.ب',  name:'دينار بحريني',        flag:'🇧🇭' },
-    { code:'OMR', sym:'ر.ع',  name:'ريال عماني',          flag:'🇴🇲' },
-    { code:'YER', sym:'ر.ي',  name:'ريال يمني',           flag:'🇾🇪' },
-    { code:'USD', sym:'$',    name:'دولار أمريكي',         flag:'🇺🇸' },
-    { code:'EUR', sym:'€',    name:'يورو',                 flag:'🇪🇺' },
-    { code:'GBP', sym:'£',    name:'جنيه إسترليني',       flag:'🇬🇧' },
-    { code:'TRY', sym:'₺',    name:'ليرة تركية',          flag:'🇹🇷' },
-    { code:'CNY', sym:'¥',    name:'يوان صيني',            flag:'🇨🇳' },
-  ];
-
-  window.openCurrencyModal = function() {
-    const list = document.getElementById('currency-list');
-    list.innerHTML = '';
-    CURRENCIES.forEach(c => {
-      const item = document.createElement('div');
-      item.className = 'currency-item' + (c.sym === currency ? ' selected' : '');
-      if (c.sym === currency) item.style.cssText = 'border-color:var(--primary-mid);background:rgba(129,140,248,.08);';
-      item.innerHTML = `
-        <span class="currency-flag">${c.flag}</span>
-        <span class="currency-name">${c.name}</span>
-        <span class="currency-symbol">${c.sym}</span>
-        ${c.sym === currency ? '<i class="fa-solid fa-check" style="color:var(--primary-mid);margin-right:auto;"></i>' : ''}`;
-      item.onclick = async () => {
-        await waitForApp();
-        currency = c.sym;
-        await app.db.run(`UPDATE settings SET value=? WHERE key='currency'`,     [c.code]);
-        await app.db.run(`UPDATE settings SET value=? WHERE key='currency_sym'`, [c.sym]);
-        document.getElementById('currency-lbl').textContent      = `${c.sym} (${c.code})`;
-        document.getElementById('dropdown-currency').textContent  = c.sym;
-        closeAllModals();
-        toast(`العملة: ${c.name} (${c.sym})`, 'success');
-        await saveDataToStorage();
-        await renderCurrentPage();
-      };
-      list.appendChild(item);
-    });
-    openModal('currency-modal');
-  };
-
-  // ══════════════════════════════════════════════════════════════
-  // ██ صفحة ملف الشخص
-  // ══════════════════════════════════════════════════════════════
-  window._profilePersonId   = null;
-  let _profileDebtFilter = 'all';
-
-  function openPersonProfile(p) {
-    window._profilePersonId = p.id;
-    _profileDebtFilter = 'all';
-
-    // بانر الإحصاء
-    const [bg, fg] = avatarColor(p.name);
-    const av = document.getElementById('profile-avatar');
-    av.style.cssText = `width:44px;height:44px;border-radius:14px;background:${bg};color:${fg};display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:900;flex-shrink:0;`;
-    av.textContent = initial(p.name);
-    document.getElementById('profile-name').textContent = p.name;
-
-    const phoneRow = document.getElementById('profile-phone-row');
-    if (p.phone) {
-      phoneRow.style.display = 'flex';
-      document.getElementById('profile-phone-lbl').textContent = p.phone;
-      document.getElementById('profile-copy-phone').onclick = () => {
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(p.phone).then(() => toast('تم نسخ الرقم ✓', 'success'));
-        } else {
-          const ta = document.createElement('textarea');
-          ta.value = p.phone; document.body.appendChild(ta); ta.select();
-          document.execCommand('copy'); ta.remove();
-          toast('تم نسخ الرقم ✓', 'success');
-        }
-      };
-    } else {
-      phoneRow.style.display = 'none';
-    }
-
-    const net = p.net_balance || 0;
-    document.getElementById('profile-receivable').textContent = fmt(p.receivable_total || 0, currency);
-    document.getElementById('profile-payable').textContent    = fmt(p.payable_total    || 0, currency);
-    const netEl = document.getElementById('profile-net');
-    netEl.textContent = (net >= 0 ? '+' : '') + fmt(net, currency);
-    netEl.style.color = net >= 0 ? '#6ee7b7' : '#fca5a5';
-
-    // إعادة ضبط تبويبات
-    document.querySelectorAll('#profile-tabs .tab-btn').forEach((b,i) => b.classList.toggle('active', i===0));
-
-    // الانتقال للصفحة
-    document.querySelectorAll('.page').forEach(pg => pg.style.display = 'none');
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('page-person-profile').style.display = '';
-    document.getElementById('nav-persons')?.classList.add('active');
-    currentPage = 'person-profile';
-    renderProfileDebts();
-  }
-
-  async function renderProfileDebts() {
-    if (!window._profilePersonId) return;
-    await waitForApp();
-    const opts = { personId: window._profilePersonId };
-    if (_profileDebtFilter !== 'all') opts.type = _profileDebtFilter;
-    const debts = await app.debts.getDebts(opts);
-    renderDebtCards(debts, document.getElementById('profile-debts-container'));
-  }
-
-  window.setProfileTab = function(filter, btn) {
-    _profileDebtFilter = filter;
-    document.querySelectorAll('#profile-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderProfileDebts();
-  };
-
-  window.backToPersons = async function() {
-    window._profilePersonId = null;
-    await navigateTo('persons');
-  };
-
-  window.sharePersonReport = async function() {
-    await waitForApp();
-    if (!window._profilePersonId) return;
-    const persons = await app.debts.getPersons();
-    const p = persons.find(x => x.id === window._profilePersonId);
-    if (!p) return;
-    const debts = await app.debts.getDebts({ personId: window._profilePersonId });
-    if (!debts.length) { toast('لا توجد ديون لهذا الشخص', 'info'); return; }
-
-    const net = p.net_balance || 0;
-    const today = new Date().toLocaleDateString('en-GB');
-    let lines = [
-      '━━━━━━━━━━━━━━━━━━━━',
-      '📊 تقرير GT-DAYN',
-      `👤 الشخص: ${p.name}`,
-      p.phone ? `📞 الهاتف: ${p.phone}` : '',
-      `📅 التاريخ: ${today}`,
-      '━━━━━━━━━━━━━━━━━━━━',
-    ].filter(Boolean);
-
-    for (const d of debts) {
-      const pct  = Math.round(((d.amount - d.remaining) / d.amount) * 100);
-      const dir  = d.type === 'receivable' ? '🟣 لي عند' : '🔴 عليّ';
-      lines.push('');
-      lines.push(`${dir}: ${d.title}`);
-      lines.push(`  المبلغ: ${fmt(d.amount, currency)}`);
-      lines.push(`  المتبقي: ${fmt(d.remaining, currency)} (${pct}% مسدّد)`);
-      if (d.status === 'done') lines.push('  ✅ مكتمل');
-    }
-    lines.push('');
-    lines.push('━━━━━━━━━━━━━━━━━━━━');
-    lines.push(`لي عنده: ${fmt(p.receivable_total || 0, currency)}`);
-    lines.push(`عليّ له: ${fmt(p.payable_total    || 0, currency)}`);
-    lines.push(`الصافي:  ${net >= 0 ? '+' : ''}${fmt(net, currency)}`);
-    lines.push('━━━━━━━━━━━━━━━━━━━━');
-    lines.push('🔗 github.com/SalehGNUTUX/GT-DAYN');
-
-    const text = lines.join('\n');
-
-    if (navigator.share) {
-      try { await navigator.share({ title: `تقرير ${p.name}`, text }); return; }
-      catch(e) { if (e.name === 'AbortError') return; }
-    }
-    // fallback: clipboard
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const ta = document.createElement('textarea');
-        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-        document.body.appendChild(ta); ta.focus(); ta.select();
-        document.execCommand('copy'); ta.remove();
-      }
-      toast('تم نسخ التقرير للحافظة ✓', 'success');
-    } catch(e) {
-      toast('تعذّر النسخ: ' + e.message, 'error');
-    }
-  };
-
-  // ══════════════════════════════════════════════════════════════
-  // ██ نظام كلمة المرور
-  // ══════════════════════════════════════════════════════════════
-  const _PWD_KEY = 'gt-dayn-pwd-hash';
-
-  function _hashPwd(raw) {
-    // hashing بسيط لا يُعرّض للأمان العالي — للإنتاج استخدم Web Crypto
-    return btoa(unescape(encodeURIComponent(raw + ':gt-dayn-2025')));
-  }
-
-  function _updatePwdUI() {
-    const active = !!localStorage.getItem(_PWD_KEY);
-    document.getElementById('pwd-status').textContent = active ? 'مفعّل ✓' : 'غير مفعّل';
-    const toggle = document.getElementById('pwd-toggle');
-    if (toggle) toggle.classList.toggle('on', active);
-    const changeRow = document.getElementById('change-pwd-row');
-    if (changeRow) changeRow.style.display = active ? '' : 'none';
-  }
-
-  window.unlockApp = function() {
-    const val = document.getElementById('lock-pwd-inp').value;
-    const errEl = document.getElementById('lock-error');
-    if (_hashPwd(val) === localStorage.getItem(_PWD_KEY)) {
-      document.getElementById('lock-screen').style.display = 'none';
-      errEl.textContent = '';
-    } else {
-      errEl.textContent = 'كلمة المرور غير صحيحة ❌';
-      document.getElementById('lock-pwd-inp').value = '';
-    }
-  };
-
-  window.openPwdSetup = function() {
-    const active = !!localStorage.getItem(_PWD_KEY);
-    if (active) {
-      // إيقاف الحماية
-      document.getElementById('pwd-modal-title').textContent = 'إيقاف الحماية';
-      document.getElementById('pwd-current-wrap').style.display = '';
-      document.getElementById('pwd-new').closest('.input-wrap').style.display = 'none';
-      document.getElementById('pwd-confirm').closest('.input-wrap').style.display = 'none';
-      document.getElementById('pwd-save-btn').textContent = 'إيقاف';
-      document.getElementById('pwd-save-btn').onclick = _disablePwd;
-    } else {
-      document.getElementById('pwd-modal-title').textContent = 'تعيين كلمة مرور';
-      document.getElementById('pwd-current-wrap').style.display = 'none';
-      document.getElementById('pwd-new').closest('.input-wrap').style.display = '';
-      document.getElementById('pwd-confirm').closest('.input-wrap').style.display = '';
-      document.getElementById('pwd-save-btn').textContent = 'حفظ';
-      document.getElementById('pwd-save-btn').onclick = savePwd;
-    }
-    ['pwd-current','pwd-new','pwd-confirm'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-    openModal('pwd-modal');
-  };
-
-  window.openChangePwd = function() {
-    document.getElementById('pwd-modal-title').textContent = 'تغيير كلمة المرور';
-    document.getElementById('pwd-current-wrap').style.display = '';
-    document.getElementById('pwd-new').closest('.input-wrap').style.display = '';
-    document.getElementById('pwd-confirm').closest('.input-wrap').style.display = '';
-    document.getElementById('pwd-save-btn').textContent = 'حفظ';
-    document.getElementById('pwd-save-btn').onclick = savePwd;
-    ['pwd-current','pwd-new','pwd-confirm'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-    openModal('pwd-modal');
-  };
-
-  window.savePwd = function() {
-    const active    = !!localStorage.getItem(_PWD_KEY);
-    const curVal    = document.getElementById('pwd-current').value;
-    const newVal    = document.getElementById('pwd-new').value;
-    const confVal   = document.getElementById('pwd-confirm').value;
-    if (active && _hashPwd(curVal) !== localStorage.getItem(_PWD_KEY)) {
-      toast('كلمة المرور الحالية غير صحيحة', 'error'); return;
-    }
-    if (newVal.length < 6) { toast('كلمة المرور قصيرة (6 أحرف على الأقل)', 'error'); return; }
-    if (newVal !== confVal) { toast('كلمتا المرور غير متطابقتين', 'error'); return; }
-    localStorage.setItem(_PWD_KEY, _hashPwd(newVal));
-    closeAllModals();
-    toast('تم حفظ كلمة المرور ✓', 'success');
-    _updatePwdUI();
-  };
-
-  function _disablePwd() {
-    const curVal = document.getElementById('pwd-current').value;
-    if (_hashPwd(curVal) !== localStorage.getItem(_PWD_KEY)) {
-      toast('كلمة المرور غير صحيحة', 'error'); return;
-    }
-    localStorage.removeItem(_PWD_KEY);
-    closeAllModals();
-    toast('تم إيقاف الحماية', 'info');
-    _updatePwdUI();
-  }
-
-  // فحص القفل فور التحميل
-  (function() {
-    if (localStorage.getItem(_PWD_KEY)) {
-      const ls = document.getElementById('lock-screen');
-      if (ls) {
-        ls.style.display = 'flex';
-        setTimeout(() => document.getElementById('lock-pwd-inp')?.focus(), 200);
-      }
-    }
-  })();
-
-  // ══════════════════════════════════════════════════════════════
-  // ██ renderSettings المحدثة
-  // ══════════════════════════════════════════════════════════════
-  const _origRenderSettings = window.renderSettings;
-  window.renderSettings = async function() {
-    if (_origRenderSettings) await _origRenderSettings();
-    _updatePwdUI();
-    // تحديث عرض العملة الصحيح
-    const curObj = CURRENCIES.find(c => c.sym === currency) || { sym: currency, code: '' };
-    const lbl = document.getElementById('currency-lbl');
-    if (lbl) lbl.textContent = `${curObj.sym} (${curObj.code})`;
-  };
-
-  // تحديث renderCurrentPage لدعم صفحة الملف الشخصي
-  const _origRenderCurrentPage = renderCurrentPage;
-  renderCurrentPage = async function() {
-    if (currentPage === 'person-profile') { await renderProfileDebts(); return; }
-    await _origRenderCurrentPage();
-  };
-  window.renderCurrentPage = renderCurrentPage;
-
 </script>
 </body>
 </html>
