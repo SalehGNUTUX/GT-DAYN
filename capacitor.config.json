@@ -1,0 +1,17 @@
+{
+  "appId": "com.gtdayn.app",
+  "appName": "GT-DAYN",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#1e1b4b",
+    "windowSoftInputMode": "adjustResize"
+  },
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true,
+    "allowNavigation": [
+      "cdnjs.cloudflare.com"
+    ]
+  }
+}

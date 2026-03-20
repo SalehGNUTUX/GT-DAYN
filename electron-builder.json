@@ -1,0 +1,88 @@
+{
+  "appId": "com.gtdayn.app",
+  "productName": "GT-DAYN",
+  "copyright": "Copyright © 2025 GT Team — GPLv3",
+  "directories": {
+    "output": "dist-electron",
+    "app": "."
+  },
+  "files": [
+    "index.html",
+    "manifest.json",
+    "sw.js",
+    "src/**/*",
+    "fonts/**/*",
+    "public/**/*",
+    "platforms/electron/**/*",
+    "package.json",
+    "node_modules/sql.js/dist/sql-wasm.js",
+    "node_modules/sql.js/dist/sql-wasm.wasm",
+    "!node_modules/sql.js/dist/sql-wasm-debug*",
+    "!node_modules/.cache/**/*",
+    "!platforms/android/**/*",
+    "!docs/**/*",
+    "!vite.config.js",
+    "!*.md"
+  ],
+  "asar": true,
+  "extraMetadata": {
+    "main": "platforms/electron/main.js"
+  },
+  "linux": {
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+    "icon": "public/icons/icon.png",
+    "category": "Finance",
+    "description": "أداة إدارة الديون والمصاريف الشخصية",
+    "synopsis": "GT-DAYN Personal Debt & Budget Manager",
+    "artifactName": "GT-DAYN-${version}-linux-x86_64.AppImage"
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+    "icon": "public/icons/icon.ico",
+    "requestedExecutionLevel": "asInvoker",
+    "signAndEditExecutable": false,
+    "sign": null,
+    "verifyUpdateCodeSignature": false
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "GT-DAYN",
+    "unicode": true,
+    "runAfterFinish": true,
+    "installerIcon": null,
+    "uninstallerIcon": null
+  },
+  "mac": {
+    "target": [
+      {
+        "target": "dmg",
+        "arch": [
+          "x64",
+          "arm64"
+        ]
+      }
+    ],
+    "icon": "public/icons/icon.icns",
+    "category": "public.app-category.finance",
+    "darkModeSupport": true,
+    "sign": null
+  },
+  "publish": null
+}
