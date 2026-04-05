@@ -9,6 +9,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
+  <!-- Favicon & Browser Icon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="https://github.com/SalehGNUTUX/GT-DAYN/blob/main/GT-DAYN-1.0.1/icons/GT-DAYN-icon-original.png?raw=true">
+  <link rel="apple-touch-icon" href="https://github.com/SalehGNUTUX/GT-DAYN/blob/main/GT-DAYN-1.0.1/icons/GT-DAYN-icon-original.png?raw=true">
+  
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
@@ -19,7 +23,9 @@
       box-sizing: border-box;
     }
 
+    /* نظام الثيمات المتقدم */
     :root {
+      /* القيم الافتراضية (فاتح) */
       --bg: #f0f4f8;
       --surface: #ffffff;
       --surface-card: #ffffff;
@@ -39,10 +45,23 @@
       --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
       --radius-lg: 1rem;
       --radius-xl: 1.5rem;
+      --transition: all 0.3s ease;
     }
 
+    /* الوضع المظلم اليدوي */
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-card: #334155;
+      --text: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+
+    /* الوضع المظلم التلقائي حسب النظام */
     @media (prefers-color-scheme: dark) {
-      :root {
+      :root:not([data-theme="light"]) {
         --bg: #0f172a;
         --surface: #1e293b;
         --surface-card: #334155;
@@ -58,6 +77,7 @@
       background: var(--bg);
       color: var(--text);
       line-height: 1.5;
+      transition: background-color 0.3s ease, color 0.2s ease;
     }
 
     /* Container */
@@ -104,6 +124,17 @@
       align-items: center;
       justify-content: center;
       backdrop-filter: blur(10px);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .logo:hover {
+      transform: scale(1.02);
+      background: rgba(255,255,255,0.2);
+    }
+
+    .logo:active {
+      transform: scale(0.98);
     }
 
     .logo img {
@@ -195,14 +226,28 @@
       transform: translateY(-2px);
     }
 
-    .btn-dark {
-      background: #1e293b;
-      color: white;
+    /* Theme Toggle Button */
+    .theme-toggle {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 1000;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 60px;
+      padding: 12px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-lg);
+      transition: var(--transition);
+      font-weight: 600;
+      color: var(--text);
     }
 
-    .btn-dark:hover {
-      background: #0f172a;
-      transform: translateY(-2px);
+    .theme-toggle:hover {
+      transform: scale(1.05);
     }
 
     /* Sections */
@@ -433,6 +478,7 @@
       .section { padding: 48px 0; }
       .btn { padding: 10px 20px; font-size: 0.875rem; }
       .container { padding: 0 16px; }
+      .theme-toggle { bottom: 16px; left: 16px; padding: 8px 12px; font-size: 0.8rem; }
     }
 
     .web-banner {
@@ -453,6 +499,18 @@
       background: white;
       color: #059669;
       margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 40px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform 0.2s;
+    }
+
+    .web-banner .btn-white:hover {
+      transform: translateY(-2px);
     }
 
     hr {
@@ -464,10 +522,16 @@
 </head>
 <body>
 
+<!-- زر تبديل الوضع (فاتح/مظلم/تلقائي) -->
+<div class="theme-toggle" id="themeToggle" title="تغيير المظهر">
+  <i class="fas fa-sun" id="themeIcon"></i>
+  <span id="themeText">فاتح</span>
+</div>
+
 <!-- Hero Section -->
 <section class="hero">
   <div class="container hero-content">
-    <div class="logo">
+    <div class="logo" id="refreshLogo">
       <img src="https://github.com/SalehGNUTUX/GT-DAYN/blob/main/GT-DAYN-1.0.1/icons/GT-DAYN-icon-original.png?raw=true" alt="GT-DAYN Logo">
     </div>
     <h1>GT-<span>DAYN</span></h1>
@@ -503,7 +567,7 @@
     <i class="fas fa-globe" style="font-size: 32px; margin-bottom: 8px; display: inline-block;"></i>
     <h3>✨ استخدم GT-DAYN مباشرة من متصفحك</h3>
     <p>لا حاجة للتثبيت — افتح الرابط وابدأ فوراً. تعمل كـ PWA ويمكن تثبيتها على هاتفك أو حاسوبك</p>
-    <a href="https://salehgnutux.github.io/GT-DAYN/GT-DAYN-1.0.1/" class="btn btn-white" target="_blank">
+    <a href="https://salehgnutux.github.io/GT-DAYN/GT-DAYN-1.0.1/" class="btn-white" target="_blank">
       <i class="fas fa-arrow-left"></i> تشغيل النسخة المباشرة
     </a>
   </div>
@@ -584,7 +648,7 @@
         <h3>🌐 النسخة المباشرة</h3>
         <p>استخدم فوراً من المتصفح — PWA تعمل بدون إنترنت بعد أول تحميل</p>
         <div class="download-size">متوافق مع كل المنصات</div>
-        <a href="https://github.com/SalehGNUTUX/GT-DAYN/blob/main/GT-DAYN-1.0.1/index.html" class="download-btn web-btn" target="_blank">
+        <a href="https://salehgnutux.github.io/GT-DAYN/GT-DAYN-1.0.1/" class="download-btn web-btn" target="_blank">
           <i class="fas fa-play"></i> تشغيل مباشر
         </a>
         <div class="hash">يمكن تثبيتها كتطبيق على هاتفك</div>
@@ -697,14 +761,147 @@
   </div>
 </footer>
 
-<!-- Simple interaction for smooth scroll -->
 <script>
+  // ============================================================
+  // نظام الثيمات المتقدم (تلقائي + يدوي + حفظ التفضيل)
+  // ============================================================
+  (function() {
+    // المفاتيح المستخدمة في التخزين المحلي
+    const THEME_STORAGE_KEY = 'gt-dayn-landing-theme';
+    
+    // الحصول على الثيم المحفوظ
+    function getSavedTheme() {
+      return localStorage.getItem(THEME_STORAGE_KEY);
+    }
+    
+    // حفظ الثيم
+    function saveTheme(theme) {
+      if (theme) localStorage.setItem(THEME_STORAGE_KEY, theme);
+      else localStorage.removeItem(THEME_STORAGE_KEY);
+    }
+    
+    // تطبيق الثيم على الصفحة
+    function applyTheme(themeMode) {
+      const html = document.documentElement;
+      
+      if (themeMode === 'auto') {
+        html.removeAttribute('data-theme');
+        saveTheme(null);
+      } else if (themeMode === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+        saveTheme('dark');
+      } else if (themeMode === 'light') {
+        html.setAttribute('data-theme', 'light');
+        saveTheme('light');
+      }
+      
+      updateThemeUI(themeMode);
+    }
+    
+    // تحديث واجهة زر الثيم
+    function updateThemeUI(themeMode) {
+      const themeIcon = document.getElementById('themeIcon');
+      const themeText = document.getElementById('themeText');
+      
+      if (!themeIcon || !themeText) return;
+      
+      // تحديد الوضع الحالي الفعلي
+      let currentMode = themeMode;
+      if (!currentMode || currentMode === 'auto') {
+        // إذا كان تلقائي، نحدد الوضع الفعلي حسب النظام
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        currentMode = isDark ? 'dark' : 'light';
+      }
+      
+      if (currentMode === 'dark') {
+        themeIcon.className = 'fas fa-moon';
+        themeText.textContent = 'مظلم';
+      } else {
+        themeIcon.className = 'fas fa-sun';
+        themeText.textContent = 'فاتح';
+      }
+    }
+    
+    // التبديل بين الأوضاع (فاتح ← مظلم ← تلقائي)
+    function cycleTheme() {
+      const currentAttribute = document.documentElement.getAttribute('data-theme');
+      let currentMode;
+      
+      if (currentAttribute === 'light') currentMode = 'light';
+      else if (currentAttribute === 'dark') currentMode = 'dark';
+      else currentMode = 'auto';
+      
+      let nextMode;
+      if (currentMode === 'light') nextMode = 'dark';
+      else if (currentMode === 'dark') nextMode = 'auto';
+      else nextMode = 'light';
+      
+      applyTheme(nextMode);
+    }
+    
+    // مراقبة تغييرات نظام التشغيل للوضع المظلم
+    function watchSystemTheme() {
+      const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      
+      const handleChange = () => {
+        const savedTheme = getSavedTheme();
+        // فقط نتفاعل إذا كان الوضع الحالي هو "تلقائي"
+        if (!savedTheme) {
+          // إعادة تطبيق التلقائي
+          applyTheme('auto');
+        }
+      };
+      
+      if (darkModeQuery.addEventListener) {
+        darkModeQuery.addEventListener('change', handleChange);
+      } else if (darkModeQuery.addListener) {
+        darkModeQuery.addListener(handleChange); // للإصدارات القديمة
+      }
+    }
+    
+    // تهيئة الثيم عند تحميل الصفحة
+    function initTheme() {
+      const savedTheme = getSavedTheme();
+      if (savedTheme === 'light') applyTheme('light');
+      else if (savedTheme === 'dark') applyTheme('dark');
+      else applyTheme('auto');
+      
+      watchSystemTheme();
+    }
+    
+    // ربط حدث النقر على زر الثيم
+    const themeBtn = document.getElementById('themeToggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', cycleTheme);
+    }
+    
+    // بدء التهيئة
+    initTheme();
+  })();
+  
+  // ============================================================
+  // شعار قابل للنقر لتحديث الصفحة
+  // ============================================================
+  const logo = document.getElementById('refreshLogo');
+  if (logo) {
+    logo.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.reload();
+    });
+  }
+  
+  // ============================================================
+  // تمرير سلس للروابط الداخلية
+  // ============================================================
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth' });
+      const targetId = this.getAttribute('href');
+      if (targetId && targetId !== '#') {
+        const target = document.querySelector(targetId);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
       }
     });
   });
