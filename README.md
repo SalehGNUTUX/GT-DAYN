@@ -28,7 +28,7 @@
 | :--- | :---: | :---: | :--- |
 | 🐧 **Linux** (AppImage x86_64) | [**تحميل**](https://github.com/SalehGNUTUX/GT-DAYN/releases/download/GT-DAYN-1.0.1/GT-DAYN-1.0.1-linux-x86_64.AppImage) | 123 MB | `e33f633cc918930dbfb060e22320188738b7ae2d2038b6f7f01c85adbdb72963` |
 | 🤖 **Android** (APK) | [**تحميل**](https://github.com/SalehGNUTUX/GT-DAYN/releases/download/GT-DAYN-1.0.1/GT-DAYN-1.0.1.apk) | 13.5 MB | `3dd564096f1b9210397e835447817db1bd0c9e8299eeb281ba328ad0783b395f` |
-| 🌐 **المتصفح** (PWA) | [**تشغيل مباشر**](https://github.com/SalehGNUTUX/GT-DAYN/blob/main/index.html) | — | — |
+| 🌐 **المتصفح** (PWA) | [**تشغيل مباشر**](https://salehgnutux.github.io/GT-DAYN/) | — | — |
 | 🪟 **Windows** (EXE) | قريباً | — | — |
 
 > صفحة الإصدارات الكاملة: [GT-DAYN-1.0.1](https://github.com/SalehGNUTUX/GT-DAYN/releases/tag/GT-DAYN-1.0.1)
