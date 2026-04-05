@@ -1,7 +1,7 @@
 <div dir="rtl" align="right">
 
 <p align="center">
-  <img src="[https://github.com/SalehGNUTUX/GT-DAYN/blob/main/icons/GT-DAYN-icon-original.png](https://github.com/SalehGNUTUX/GT-DAYN/blob/main/GT-DAYN-1.0.1/icons/GT-DAYN-icon-original.png)?raw=true" width="256" alt="GT-DAYN"/>
+  <img src="https://github.com/SalehGNUTUX/GT-DAYN/blob/main/GT-DAYN-1.0.1/icons/GT-DAYN-icon-original.png?raw=true" width="256" alt="GT-DAYN"/>
 </p>
 
 <h1 align="center">GT-DAYN — أداة إدارة الديون والمصاريف</h1>
