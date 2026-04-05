@@ -1,0 +1,27 @@
+{
+  "name": "GT-DAYN — سجل الديون الذكي",
+  "short_name": "GT-DAYN",
+  "description": "مدير الديون والمصاريف الشخصية الذكي",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1e1b4b",
+  "background_color": "#f0f4f8",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "دين جديد",
+      "short_name": "إضافة",
+      "description": "أضف دينًا جديدًا",
+      "url": "./?action=add",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
