@@ -1,0 +1,45 @@
+{
+  "name": "gt-dayn",
+  "version": "1.0.2",
+  "description": "أداة إدارة الديون والمصاريف الشخصية — GT-DAYN",
+  "author": {
+    "name": "SalehGNUTUX",
+    "url": "https://github.com/SalehGNUTUX"
+  },
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/SalehGNUTUX/GT-DAYN",
+  "private": true,
+  "main": "platforms/electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "electron:dev": "NODE_ENV=development electron platforms/electron/main.js",
+    "electron:linux": "electron-builder --linux --config electron-builder.json",
+    "electron:win": "USE_HARD_LINKS=false CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win --config electron-builder.json",
+    "electron:mac": "electron-builder --mac   --config electron-builder.json",
+    "electron:all": "electron-builder --linux --win --config electron-builder.json",
+    "android:init": "npx cap add android",
+    "android:sync": "npm run build && npx cap sync android",
+    "android:open": "npm run build && npx cap sync android && npx cap open android",
+    "android:apk": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug",
+    "build:linux": "bash scripts/build-linux.sh",
+    "build:android": "bash scripts/build-android.sh",
+    "build:all": "bash scripts/build-all.sh"
+  },
+  "dependencies": {
+    "@capacitor-community/sqlite": "^6.0.0",
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/filesystem": "^6.0.0",
+    "@capacitor/share": "^6.0.0",
+    "sql.js": "^1.10.3"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.0.0",
+    "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.19.0"
+  }
+}
