@@ -819,7 +819,7 @@
       cursor: pointer;
     }
 
-    .toggle.on, .toggle.active { background: var(--primary-mid); }
+    .toggle.on { background: var(--primary-mid); }
 
     .toggle::after {
       content: '';
@@ -833,7 +833,7 @@
       transition: transform 0.2s;
     }
 
-    .toggle.on::after, .toggle.active::after { transform: translateX(-20px); }
+    .toggle.on::after { transform: translateX(-20px); }
 
     .drive-status {
       display: flex;
@@ -1839,7 +1839,7 @@
     </div>
     <div class="banner-grid">
       <div class="banner-cell">
-        <div class="b-lbl">لي</div>
+        <div class="b-lbl">لي عند</div>
         <div class="b-val receivable" id="b-receivable">0</div>
       </div>
       <div class="banner-divider"></div>
@@ -1871,7 +1871,7 @@
   <!-- Sort/Type tabs -->
   <div class="tab-bar" id="debt-tabs" style="flex-wrap:nowrap;overflow-x:auto;">
     <button class="tab-btn active" data-filter="all"        onclick="setDebtFilter('all',this)">الكل</button>
-    <button class="tab-btn"        data-filter="receivable" onclick="setDebtFilter('receivable',this)">لي</button>
+    <button class="tab-btn"        data-filter="receivable" onclick="setDebtFilter('receivable',this)">لي عند</button>
     <button class="tab-btn"        data-filter="payable"    onclick="setDebtFilter('payable',this)">عليّ</button>
     <button class="tab-btn"        data-filter="done"       onclick="setDebtFilter('done',this)" style="white-space:nowrap;">✅ مكتمل</button>
     <button class="tab-btn"        data-filter="archived"   onclick="setDebtFilter('archived',this)" style="white-space:nowrap;">🗂 أرشيف</button>
@@ -1925,7 +1925,7 @@
     <!-- إحصاء ثلاثي -->
     <div style="display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;">
       <div style="text-align:center;padding:0 6px;">
-        <div style="font-size:.65rem;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:3px;">لي</div>
+        <div style="font-size:.65rem;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:3px;">لي عنده</div>
         <div id="profile-receivable" style="font-size:1.05rem;font-weight:900;color:#a5b4fc;">0</div>
       </div>
       <div style="background:rgba(255,255,255,.12);margin:2px 0;"></div>
@@ -1943,7 +1943,7 @@
   <!-- تبويبات -->
   <div class="tab-bar" id="profile-tabs" style="margin-bottom:14px;">
     <button class="tab-btn active" onclick="setProfileTab('all',this)">الكل</button>
-    <button class="tab-btn" onclick="setProfileTab('receivable',this)">لي</button>
+    <button class="tab-btn" onclick="setProfileTab('receivable',this)">لي عند</button>
     <button class="tab-btn" onclick="setProfileTab('payable',this)">عليّ</button>
   </div>
   <div id="profile-debts-container"></div>
@@ -2238,7 +2238,7 @@
     </div>
 
     <div class="tab-bar" style="margin-bottom:10px;">
-      <button class="tab-btn active" id="dtype-rec" onclick="setDebtType('receivable')">لي</button>
+      <button class="tab-btn active" id="dtype-rec" onclick="setDebtType('receivable')">لي عند (يدينون لي)</button>
       <button class="tab-btn" id="dtype-pay" onclick="setDebtType('payable')">عليّ (أنا المدين)</button>
     </div>
 
@@ -2753,11 +2753,7 @@
   };
 
   // ── يُستدعى مع كل تحديث للإعدادات
-  document.addEventListener('gt-dayn:ready', () => {
-    _gtUpdateLockUI();
-    if (typeof _setupAutoBackupTriggers === 'function') _setupAutoBackupTriggers();
-    if (typeof _updateAutoBackupUI === 'function') _updateAutoBackupUI();
-  });
+  document.addEventListener('gt-dayn:ready', () => _gtUpdateLockUI());
   document.addEventListener('gt-settings:rendered', () => _gtUpdateLockUI());
 
   import { fmt, initial, avatarColor, toast, toastUndo, openModal, closeAllModals, initViewportFix, initDragSort, confirm, applyTheme } from './src/ui/components/ui.js';
@@ -2772,6 +2768,15 @@
   window.addEventListener('gt-dayn:ready', () => {
     console.log('✅ التطبيق جاهز');
     appReadyPromiseResolve();
+  });
+
+  // تشغيل نظام الحفظ التلقائي بعد جاهزية التطبيق
+  document.addEventListener('gt-dayn:ready', () => {
+    if (typeof _setupAutoBackupTriggers === 'function') {
+      setTimeout(_setupAutoBackupTriggers, 1000);  // تأخير لضمان جاهزية كل الدوال
+    }
+    if (typeof _updateAutoBackupUI === 'function') _updateAutoBackupUI();
+    if (typeof _gtUpdateLockUI     === 'function') _gtUpdateLockUI();
   });
 
   // دالة للتأكد من أن التطبيق جاهز قبل تنفيذ أي شيء
@@ -3123,7 +3128,7 @@
             <div class="card-name">${d.person_name}</div>
             ${d.title ? `<div class="card-note">${d.title}</div>` : ''}
           </div>
-          <div class="type-badge ${d.type}">${d.type === 'receivable' ? 'لي' : 'عليّ'}</div>
+          <div class="type-badge ${d.type}">${d.type === 'receivable' ? 'لي عند' : 'عليّ'}</div>
           ${d.status === 'done'     ? '<div class="status-badge-done">✅ مكتمل</div>'  : ''}
           ${d.status === 'archived' ? '<div class="status-badge-arch">🗂 مؤرشَف</div>' : ''}
           <div class="card-amount ${done ? 'done' : ''}">${done ? '✓' : fmt(d.remaining, d.currency || currency)}</div>
@@ -3413,8 +3418,8 @@
       if (_old && _upd) {
         if (_old.amount !== _upd.amount) recordDebtEdit(_eid,'amount',_old.amount,_upd.amount).catch(()=>{});
         if (_old.type   !== _upd.type)   recordDebtEdit(_eid,'type',
-          _old.type==='receivable'?'لي':'عليّ',
-          _upd.type==='receivable'?'لي':'عليّ').catch(()=>{});
+          _old.type==='receivable'?'لي عند':'عليّ',
+          _upd.type==='receivable'?'لي عند':'عليّ').catch(()=>{});
         if (_old.title  !== _upd.title)  recordDebtEdit(_eid,'title',_old.title,_upd.title).catch(()=>{});
       }
     } else {
@@ -3423,7 +3428,6 @@
     closeAllModals();
     toast('تم الحفظ ✓','success');
     await renderDebts();
-    window.dispatchEvent(new Event('gt-debt-updated'));
     } catch(e) {
       toast('خطأ في الحفظ: ' + (e.message || e), 'error');
       console.error('[saveDebt]', e);
@@ -3633,7 +3637,7 @@
         </div>
         <div class="person-stats">
           <div class="pstat">
-            <div class="pstat-lbl">لي</div>
+            <div class="pstat-lbl">لي عنده</div>
             <div class="pstat-val" style="color:#818cf8;">${fmt(p.receivable_total || 0, currency)}</div>
           </div>
           <div class="pstat">
@@ -4181,8 +4185,6 @@
   // ======================== دوال الإعدادات ========================
   async function renderSettings() {
     await waitForApp();
-    // تحديث واجهة النسخ الاحتياطي
-    if (typeof _updateAutoBackupUI === 'function') _updateAutoBackupUI();
     const sync = await app.db.query(`SELECT * FROM drive_sync WHERE id=1`);
     const s    = sync[0] ?? {};
     const dot  = document.getElementById('drive-dot');
@@ -4474,7 +4476,7 @@
     chartInstance = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['لي', 'عليّ'],
+        labels: ['لي عند', 'عليّ'],
         datasets: [{
           data: [summary.totalReceivable, summary.totalPayable],
           backgroundColor: ['#818cf8', '#f87171'],
@@ -4699,52 +4701,7 @@
     const opts = { personId: window._profilePersonId };
     if (_profileDebtFilter !== 'all') opts.type = _profileDebtFilter;
     const debts = await app.debts.getDebts(opts);
-    const container = document.getElementById('profile-debts-container');
-    container.innerHTML = '';
-    if (!debts.length) {
-      container.innerHTML = `<div class="empty-state"><i class="fa-solid fa-folder-open"></i><p>لا توجد ديون حتى الآن</p></div>`;
-      return;
-    }
-    debts.forEach(d => {
-      const row = document.createElement('div');
-      row.className = 'setting-row';
-      row.style.cssText = 'cursor:pointer;border-radius:12px;margin-bottom:8px;padding:12px 14px;';
-      const pct  = Math.min(100, Math.round(((d.amount - d.remaining) / d.amount) * 100));
-      const done = d.status === 'done';
-      row.innerHTML = `
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:.88rem;color:var(--text);margin-bottom:3px;">${d.title || '—'}</div>
-          <div style="font-size:.75rem;color:var(--text-3);">
-            <span style="color:${done ? '#10b981' : (d.type==='receivable' ? 'var(--primary-mid)' : '#f87171')};">
-              ${d.type === 'receivable' ? 'لي' : 'عليّ'}
-            </span>
-            · ${pct}% مسدّد
-            ${done ? ' · ✅ مكتمل' : ''}
-          </div>
-        </div>
-        <div style="font-weight:800;font-size:.95rem;color:var(--text);white-space:nowrap;margin-right:8px;">
-          ${fmt(d.remaining, d.currency || currency)}
-        </div>
-        <i class="fa-solid fa-chevron-left" style="color:var(--text-3);font-size:.75rem;flex-shrink:0;"></i>
-      `;
-      // النقر → الانتقال لقسم الديون وفتح البطاقة
-      row.onclick = async () => {
-        await navigateTo('debts');
-        // تعيين الفلتر المناسب
-        if (d.type === 'receivable') {
-          document.querySelector('#debt-tabs [data-filter="all"]')?.click();
-        }
-        // انتظر تحميل الصفحة ثم افتح البطاقة
-        setTimeout(() => {
-          const card = document.querySelector(`.debt-card[data-id="${d.id}"]`);
-          if (card) {
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            toggleHistory(d.id);
-          }
-        }, 350);
-      };
-      container.appendChild(row);
-    });
+    renderDebtCards(debts, document.getElementById('profile-debts-container'));
   }
 
   window.setProfileTab = function(filter, btn) {
@@ -4778,7 +4735,7 @@
       amount: Math.abs(net),
       remaining: Math.abs(net),
       status: 'active',
-      note: `لي: ${fmt(p.receivable_total || 0, currency)} | عليه لي: ${fmt(p.payable_total || 0, currency)}`
+      note: `لي عنده: ${fmt(p.receivable_total || 0, currency)} | عليه لي: ${fmt(p.payable_total || 0, currency)}`
     };
     if (shareCard) {
       await shareCard(fakeDebt, p.name, currency);
@@ -4796,7 +4753,7 @@
 
       for (const d of debts) {
         const pct  = Math.round(((d.amount - d.remaining) / d.amount) * 100);
-        const dir  = d.type === 'receivable' ? '🟣 لي' : '🔴 عليّ';
+        const dir  = d.type === 'receivable' ? '🟣 لي عند' : '🔴 عليّ';
         lines.push('');
         lines.push(`${dir}: ${d.title}`);
         lines.push(`  المبلغ: ${fmt(d.amount, currency)}`);
@@ -4805,7 +4762,7 @@
       }
       lines.push('');
       lines.push('━━━━━━━━━━━━━━━━━━━━');
-      lines.push(`لي: ${fmt(p.receivable_total || 0, currency)}`);
+      lines.push(`لي عنده: ${fmt(p.receivable_total || 0, currency)}`);
       lines.push(`عليّ له: ${fmt(p.payable_total    || 0, currency)}`);
       lines.push(`الصافي:  ${net >= 0 ? '+' : ''}${fmt(net, currency)}`);
       lines.push('━━━━━━━━━━━━━━━━━━━━');
@@ -4813,10 +4770,7 @@
 
       const text = lines.join('\n');
       if (navigator.share) {
-        try {
-          await navigator.share({ title: `تقرير ${p.name} — GT-DAYN`, text });
-          return;
-        }
+        try { await navigator.share({ title: `تقرير ${p.name}`, text }); return; }
         catch(e) { if (e.name === 'AbortError') return; }
       }
       try {
@@ -5531,39 +5485,36 @@
   
   // تحديث واجهة الحفظ التلقائي
   function _updateAutoBackupUI() {
-    const settings = _getBackupSettings();
-    const toggle = document.getElementById('auto-backup-toggle');
-    const status = document.getElementById('auto-backup-status');
-    const pathRow = document.getElementById('auto-backup-path-row');
+    const settings    = _getBackupSettings();
+    const toggle      = document.getElementById('auto-backup-toggle');
+    const status      = document.getElementById('auto-backup-status');
+    const pathRow     = document.getElementById('auto-backup-path-row');
     const pathDisplay = document.getElementById('auto-backup-path');
-    const folderBtn = document.getElementById('choose-auto-folder-btn');
-    
-    if (toggle) {
-      toggle.classList.toggle('active', settings.autoBackup);
-    }
+    const folderBtn   = document.getElementById('choose-auto-folder-btn');
+
+    if (toggle) toggle.classList.toggle('active', settings.autoBackup);
+
     if (status) {
-      status.textContent = settings.autoBackup ? 
-        'مُفعّل — نسخة احتياطية تلقائية مع كل تعديل' : 
-        'غير مُفعّل — الحفظ اليدوي فقط';
-    }
-    if (pathRow) {
-      pathRow.style.display = settings.autoBackupPath ? 'flex' : 'none';
-    }
-    if (pathDisplay && settings.autoBackupPath) {
-      pathDisplay.textContent = settings.autoBackupPath;
-    }
-    if (folderBtn) {
-      folderBtn.style.display = settings.autoBackup ? 'flex' : 'none';
-    }
-    
-    // تحديث صف المجلد الأخير
-    const lastPathRow = document.getElementById('last-save-path-row');
-    const lastPathDisplay = document.getElementById('last-save-path');
-    if (lastPathRow && settings.lastSavePath) {
-      lastPathRow.style.display = 'flex';
-      if (lastPathDisplay) {
-        lastPathDisplay.textContent = settings.lastSavePath;
+      let txt = settings.autoBackup ? 'مُفعّل ✓' : 'غير مُفعّل';
+      if (settings.autoBackup && settings.lastAutoBackupTime) {
+        const t = new Date(settings.lastAutoBackupTime);
+        txt += ' — آخر حفظ: ' + t.toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
+      } else if (settings.autoBackup) {
+        txt += ' — في انتظار أول تعديل';
       }
+      status.textContent = txt;
+    }
+
+    if (pathRow)     pathRow.style.display     = settings.autoBackupPath ? 'flex' : 'none';
+    if (pathDisplay && settings.autoBackupPath) pathDisplay.textContent = settings.autoBackupPath;
+    if (folderBtn)   folderBtn.style.display   = settings.autoBackup    ? 'flex' : 'none';
+
+    const lastPathRow     = document.getElementById('last-save-path-row');
+    const lastPathDisplay = document.getElementById('last-save-path');
+    const lastPath = settings.lastSavePath || settings.lastAutoBackupFile || '';
+    if (lastPathRow && lastPath) {
+      lastPathRow.style.display = 'flex';
+      if (lastPathDisplay) lastPathDisplay.textContent = lastPath;
     }
   }
   
@@ -5578,41 +5529,21 @@
   
   // اختيار مجلد الحفظ التلقائي
   window.chooseAutoBackupFolder = async function() {
-    const isNative = window.Capacitor?.isNativePlatform?.();
-    const isElectron = !!window.__ELECTRON__;
-
-    if (isNative) {
-      // Android: لا يوجد منتقي مجلدات مباشر — نستخدم مجلد Documents/GT-DAYN ثابت
+    if (!window.showDirectoryPicker) {
+      toast('منتقي المجلدات غير متاح على هذا الجهاز', 'error');
+      return;
+    }
+    try {
+      const dirHandle = await window.showDirectoryPicker();
       const settings = _getBackupSettings();
-      settings.autoBackupPath = 'Documents/GT-DAYN/AutoBackup';
+      settings.autoBackupPath = dirHandle.name;
       _saveBackupSettings(settings);
       _updateAutoBackupUI();
-      toast('مجلد الحفظ: Documents/GT-DAYN/AutoBackup ✓', 'success');
-    } else if (window.showDirectoryPicker) {
-      // Electron / متصفح داعم لـ File System Access API
-      try {
-        const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-        const settings  = _getBackupSettings();
-        settings.autoBackupPath     = dirHandle.name;
-        settings._dirHandleKey      = 'gt-dayn-dir-handle';
-        // حفظ الـ handle للاستخدام لاحقاً
-        try {
-          await dirHandle.requestPermission({ mode: 'readwrite' });
-          window._autoBackupDirHandle = dirHandle;
-        } catch(pe) {}
-        _saveBackupSettings(settings);
-        _updateAutoBackupUI();
-        toast('تم اختيار مجلد: ' + dirHandle.name + ' ✓', 'success');
-      } catch(e) {
-        if (e.name !== 'AbortError') toast('فشل اختيار المجلد', 'error');
+      toast('تم اختيار مجلد: ' + dirHandle.name, 'success');
+    } catch (e) {
+      if (e.name !== 'AbortError') {
+        toast('فشل اختيار المجلد', 'error');
       }
-    } else {
-      // Fallback: أخبر المستخدم بمسار الحفظ الافتراضي
-      const settings = _getBackupSettings();
-      settings.autoBackupPath = 'مجلد التنزيلات (Downloads)';
-      _saveBackupSettings(settings);
-      _updateAutoBackupUI();
-      toast('سيُحفظ تلقائياً في مجلد التنزيلات', 'info');
     }
   };
   
@@ -5621,65 +5552,132 @@
     const settings = _getBackupSettings();
     if (!settings.autoBackup) return;
 
+    const filename = 'GT-DAYN-' + new Date().toISOString()
+        .replace('T','_').replace(/:/g,'-').slice(0,19) + '.json';
+
     try {
       await waitForApp();
-      const filename = _bkFilename('json');
-      const data     = await _bkBuildJSON();
+      const data = await _bkBuildJSON();
 
-      // 1) Android — Filesystem Plugin
+      // ══ Android (Capacitor) ══
       if (window.Capacitor?.isNativePlatform?.()) {
         const CapFS = window.Capacitor?.Plugins?.Filesystem;
-        if (CapFS) {
-          const folderPath = 'GT-DAYN/AutoBackup';
-          try { await CapFS.mkdir({ path: folderPath, directory: 'DOCUMENTS', recursive: true }); } catch(e) {}
-          await CapFS.writeFile({
-            path:      `${folderPath}/${filename}`,
-            data:      _textToBase64(data),
-            directory: 'DOCUMENTS'
-          });
-          settings.autoBackupCount = (settings.autoBackupCount || 0) + 1;
-          _saveBackupSettings(settings);
-          console.log('[AutoBackup] Android saved:', filename);
+        if (!CapFS) { console.warn('[AutoBackup] CapFS not available'); return; }
+
+        const folder = 'GT-DAYN/AutoBackup';
+        const path   = folder + '/' + filename;
+
+        // محاولة DOCUMENTS أولاً، ثم DATA كـ fallback
+        const dirs = ['DOCUMENTS', 'DATA', 'CACHE'];
+        let saved = false;
+        for (const dir of dirs) {
+          try {
+            await CapFS.mkdir({ path: folder, directory: dir, recursive: true }).catch(() => {});
+            await CapFS.writeFile({ path, data: _textToBase64(data), directory: dir });
+            settings.autoBackupCount = (settings.autoBackupCount || 0) + 1;
+            settings.autoBackupPath  = dir + '/' + folder;
+            settings.lastAutoBackupFile = path;
+            settings.lastAutoBackupTime = new Date().toISOString();
+            _saveBackupSettings(settings);
+            console.log('[AutoBackup] ✓ saved to ' + dir + '/' + path);
+            // تحديث الواجهة
+            if (typeof _updateAutoBackupUI === 'function') _updateAutoBackupUI();
+            saved = true;
+            break;
+          } catch(e) {
+            console.warn('[AutoBackup] failed with dir=' + dir + ':', e.message);
+          }
+        }
+        if (!saved) {
+          // آخر حل: حفظ في localStorage
+          _autoBackupToLocalStorage(data, filename, settings);
         }
 
-      // 2) Electron/Web — File System Access API (dirHandle)
-      } else if (window._autoBackupDirHandle) {
+      // ══ Electron / Desktop ══
+      } else if (window.__ELECTRON__) {
+        // Electron: حفظ عبر IPC إذا أمكن، وإلا localStorage
         try {
-          const fileHandle = await window._autoBackupDirHandle.getFileHandle(filename, { create: true });
-          const writable   = await fileHandle.createWritable();
-          await writable.write(data);
-          await writable.close();
-          settings.autoBackupCount = (settings.autoBackupCount || 0) + 1;
-          _saveBackupSettings(settings);
-          console.log('[AutoBackup] Desktop saved:', filename);
-        } catch(e) { console.warn('[AutoBackup] dirHandle error:', e); }
+          if (window._autoBackupDirHandle) {
+            const fh = await window._autoBackupDirHandle.getFileHandle(filename, { create: true });
+            const wr = await fh.createWritable();
+            await wr.write(data);
+            await wr.close();
+            settings.autoBackupCount = (settings.autoBackupCount || 0) + 1;
+            settings.lastAutoBackupFile = filename;
+            settings.lastAutoBackupTime = new Date().toISOString();
+            _saveBackupSettings(settings);
+            console.log('[AutoBackup] ✓ Electron saved:', filename);
+            if (typeof _updateAutoBackupUI === 'function') _updateAutoBackupUI();
+          } else {
+            _autoBackupToLocalStorage(data, filename, settings);
+          }
+        } catch(e) {
+          _autoBackupToLocalStorage(data, filename, settings);
+        }
 
-      // 3) Fallback — localStorage snapshot (للتعافي لاحقاً)
+      // ══ Web (PWA / Browser) ══
       } else {
-        try {
-          localStorage.setItem('gt-dayn-last-auto-backup', data);
-          localStorage.setItem('gt-dayn-last-auto-backup-date', new Date().toISOString());
-          settings.autoBackupCount = (settings.autoBackupCount || 0) + 1;
-          _saveBackupSettings(settings);
-        } catch(e) { console.warn('[AutoBackup] localStorage error:', e); }
+        _autoBackupToLocalStorage(data, filename, settings);
       }
     } catch(e) {
-      console.error('[AutoBackup] failed:', e);
+      console.error('[AutoBackup] error:', e.message);
     }
   }
+
+  // حفظ في localStorage (دائماً يعمل، كـ fallback)
+  function _autoBackupToLocalStorage(data, filename, settings) {
+    try {
+      localStorage.setItem('gt-dayn-auto-backup-data', data);
+      localStorage.setItem('gt-dayn-auto-backup-name', filename);
+      localStorage.setItem('gt-dayn-auto-backup-time', new Date().toISOString());
+      settings.autoBackupCount = (settings.autoBackupCount || 0) + 1;
+      settings.lastAutoBackupFile = filename + ' (localStorage)';
+      settings.lastAutoBackupTime = new Date().toISOString();
+      _saveBackupSettings(settings);
+      console.log('[AutoBackup] ✓ localStorage fallback:', filename);
+      if (typeof _updateAutoBackupUI === 'function') _updateAutoBackupUI();
+    } catch(e) { console.warn('[AutoBackup] localStorage failed:', e.message); }
+  }
   
-  // تسجيل التعديلات لحفظ تلقائي
+  // ══════════════════════════════════════════════════════════
+  // نظام الحفظ التلقائي — dirty flag + setInterval
+  // يعمل على Android وElectron والويب بدون الحاجة لأحداث
+  // ══════════════════════════════════════════════════════════
   function _setupAutoBackupTriggers() {
-    // استمع لأحداث التعديل
-    const events = ['gt-debt-added', 'gt-debt-updated', 'gt-debt-deleted', 
-                    'gt-payment-added', 'gt-budget-updated'];
-    events.forEach(eventName => {
-      window.addEventListener(eventName, () => {
-        // تأخير قصير لتجنب الحفظ المتكرر
-        clearTimeout(window._autoBackupTimeout);
-        window._autoBackupTimeout = setTimeout(_triggerAutoBackup, 2000);
-      });
-    });
+    // الحل الجذري: نضع dirty-flag في كل دالة تُغيّر البيانات
+    // ثم interval يحفظ إذا وجد تعديلاً
+
+    // override: بعد أي renderDebts/renderBudget/renderPersons → dirty
+    const _origRenderDebts   = renderDebts;
+    const _origRenderBudget  = renderBudget;
+    const _origRenderPersons = renderPersons;
+
+    renderDebts = async function(...a) {
+      const r = await _origRenderDebts(...a);
+      window._autoBackupDirty = true;
+      return r;
+    };
+    renderBudget = async function(...a) {
+      const r = await _origRenderBudget(...a);
+      window._autoBackupDirty = true;
+      return r;
+    };
+    renderPersons = async function(...a) {
+      const r = await _origRenderPersons(...a);
+      window._autoBackupDirty = true;
+      return r;
+    };
+
+    // interval: كل 5 ثوانٍ تحقق من dirty
+    window._autoBackupInterval = setInterval(async () => {
+      if (!window._autoBackupDirty) return;
+      const settings = _getBackupSettings();
+      if (!settings.autoBackup) { window._autoBackupDirty = false; return; }
+      window._autoBackupDirty = false;  // reset قبل الحفظ لتجنب تكرار
+      await _triggerAutoBackup();
+    }, 5000);
+
+    console.log('[AutoBackup] triggers ready — interval mode');
   }
   
   // الحفظ مع منتقي ملفات Android (Intent)
@@ -5699,16 +5697,12 @@
       const mimeType = type === 'json' ? 'application/json' : 'application/vnd.sqlite3';
       
       if (isNative) {
-        // Android: حفظ مباشر في Documents/GT-DAYN ثم إشعار
+        // Android: استخدام Intent لمنتقي الملفات
         await _saveWithAndroidPicker(data, filename, mimeType);
-      } else if (window.showSaveFilePicker) {
-        // Electron/Chrome: منتقي حفظ ملفات نظيف (مدير ملفات النظام فقط)
-        const savedName = await _saveWithWebPicker(data, filename, mimeType);
-        toast('تم الحفظ: ' + savedName + ' ✓', 'success');
       } else {
-        // Fallback: تنزيل مباشر
-        const savedName = await _saveOnWeb(data, filename, mimeType);
-        toast('تم التنزيل في مجلد التنزيلات ✓', 'success');
+        // Web: استخدام File System Access API
+        const savedName = await _saveWithWebPicker(data, filename, mimeType);
+        toast('تم الحفظ: ' + savedName, 'success');
       }
     } catch(e) {
       if (e.name !== 'AbortError') {

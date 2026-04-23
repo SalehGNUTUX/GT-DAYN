@@ -13,14 +13,5 @@
     "allowNavigation": [
       "cdnjs.cloudflare.com"
     ]
-  },
-  "plugins": {
-    "Filesystem": {
-      "androidExtraFilesystems": [
-        "documents",
-        "cache",
-        "data"
-      ]
-    }
   }
 }
