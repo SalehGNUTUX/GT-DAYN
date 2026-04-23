@@ -1,0 +1,2621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GT-DAYN v1.0.2</title>
+  <link rel="manifest" href="/assets/manifest-QmPvMOqf.json">
+  <meta name="theme-color" content="#1e1b4b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GT-DAYN">
+  <!-- أيقونات — مسارات نسبية -->
+  <link rel="apple-touch-icon" href="/assets/GT-DAYN-icon-CasUl5fk.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48-CFP708Pu.png">
+  <link rel="icon" type="image/x-icon" href="/assets/favicon-P1wvujpB.ico">
+
+  <!-- ════════════════════════════════════════════════════
+       الموارد الخارجية — تُخزَّن تلقائياً بواسطة SW
+       بعد أول تحميل بإنترنت، تعمل بالكامل بدونه
+  ════════════════════════════════════════════════════ -->
+  <!-- Font Awesome (الأيقونات) -->
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- ════════════════════════════════════════════════════
+       الخط المحلي: Ubuntu Arabic
+       المسار: ./fonts/Ubuntu Arabic Regular.otf
+  ════════════════════════════════════════════════════ -->
+  <style>
+    @font-face {
+      font-family: 'AppFont';
+      src: url('/assets/Ubuntu%20Arabic%20Regular-CeQSZlfX.otf') format('opentype');
+      font-weight: 400 900;
+      font-style: normal;
+      font-display: swap;
+    }
+    /* احتياطي: Cairo من CDN (مُخزَّن بواسطة SW) */
+  </style>
+
+  <!-- ملف التصميم الأساسي -->
+
+  <style>
+    /* ===================== الأسس العامة ===================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0; padding: 0;
+    }
+
+    /* ─── متغيرات التباعد ─── */
+    :root {
+      --nav-h:    60px;
+      --header-h: 62px;
+      --safe-b:   env(safe-area-inset-bottom, 0px);
+      --safe-t:   env(safe-area-inset-top, 0px);
+      --fab-bottom: calc(var(--nav-h) + 14px + var(--safe-b));
+      --font: 'AppFont', 'Cairo', 'Segoe UI', sans-serif;
+    }
+
+    /* ─── html/body: لا تمرير هنا ─── */
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      font-family: var(--font);
+      color: var(--text);
+      font-variant-numeric: lining-nums tabular-nums;
+      -moz-font-feature-settings: "lnum";
+      -webkit-font-feature-settings: "lnum";
+      font-feature-settings: "lnum";
+    }
+
+    /* ─── حاوية التمرير الرئيسية ─── */
+    /* تبدأ بعد الهيدر (62px) وتنتهي قبل الشريط السفلي (60px) */
+    #app-scroll {
+      position: fixed;
+      top: var(--header-h);
+      left: 0; right: 0;
+      bottom: calc(var(--nav-h) + var(--safe-b));
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px 16px 80px;   /* 80px مسافة أمان تحت آخر بطاقة */
+    }
+    #app-scroll::-webkit-scrollbar { width: 3px; }
+    #app-scroll::-webkit-scrollbar-track { background: transparent; }
+    #app-scroll::-webkit-scrollbar-thumb { background: var(--primary-mid); border-radius: 3px; }
+
+    /* ─── تعديل top عند ظهور شريط الأوفلاين (28px) ─── */
+    body.offline #app-scroll { top: calc(var(--header-h) + 28px); }
+
+    /* ─── هيدر ثابت بزجاجية ─── */
+    header {
+      position: fixed;
+      top: var(--safe-t);
+      left: 0; right: 0;
+      max-width: 600px;
+      margin: 0 auto;
+      height: var(--header-h);
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      z-index: 900;
+      background: rgba(var(--bg-rgb, 240 244 248), 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    [data-theme="dark"] header { background: rgba(15,14,26,0.95); }
+
+    /* ─── bg-rgb vars ─── */
+    [data-theme="light"] { --bg-rgb: 240 244 248; }
+    [data-theme="dark"]  { --bg-rgb: 15 14 26; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) { --bg-rgb: 15 23 42; }
+    }
+
+    .header-title-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #header-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    #header-title span { color: var(--primary-mid); }
+
+    .app-subtitle {
+      font-size: 0.7rem;
+      color: var(--text-3);
+      font-weight: 600;
+      margin-top: -2px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      position: relative;
+    }
+
+    /* ===================== قائمة الإعدادات المنسدلة ===================== */
+    .settings-dropdown {
+      position: absolute;
+      top: 45px;
+      left: 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      width: 280px;
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      padding: 8px;
+    }
+
+    .settings-dropdown.active { display: block; }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .dropdown-item:hover { background: var(--bg); }
+
+    .dropdown-item i {
+      width: 24px;
+      color: var(--primary-mid);
+      font-size: 1.1rem;
+    }
+
+    .dropdown-item .item-content {
+      flex: 1;
+    }
+
+    .dropdown-item .item-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .dropdown-item .item-sub {
+      font-size: 0.7rem;
+      color: var(--text-3);
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 0;
+    }
+
+    /* ===================== البحث ===================== */
+    #search-bar {
+      display: none;
+      flex: 1;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #search-bar.active { display: flex; }
+    #search-bar.active ~ .header-title-wrapper { display: none; }
+
+    #search-input {
+      flex: 1;
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.9rem;
+    }
+
+    #search-input:focus {
+      outline: none;
+      border-color: var(--primary-mid);
+    }
+
+    /* ===================== FAB (زر الإضافة) ===================== */
+    .fab {
+      position: fixed;
+      bottom: var(--fab-bottom);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary-mid);
+      border: none;
+      border-radius: 40px;
+      padding: 14px 28px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.5);
+      z-index: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      white-space: nowrap;
+    }
+
+    .fab i { font-size: 1.1rem; }
+    .fab:active { transform: translateX(-50%) scale(0.97); opacity: 0.9; }
+
+    /* ===================== Summary Banner ===================== */
+    .summary-banner {
+      background: var(--primary);
+      border-radius: 24px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .summary-banner .month-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .summary-banner .month-lbl {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.55);
+      font-weight: 600;
+    }
+
+    .banner-grid {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr 1px 1fr;
+      gap: 0;
+    }
+
+    .banner-cell { text-align: center; padding: 0 8px; }
+
+    .banner-cell .b-lbl {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .banner-cell .b-val {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .banner-cell .b-val.receivable { color: #a5b4fc; }
+    .banner-cell .b-val.payable    { color: #fca5a5; }
+    .banner-cell .b-val.net-pos    { color: #6ee7b7; }
+    .banner-cell .b-val.net-neg    { color: #fca5a5; }
+
+    .banner-divider {
+      width: 1px;
+      background: rgba(255, 255, 255, 0.12);
+      margin: 4px 0;
+    }
+
+    /* ===================== Due notifications ===================== */
+    .due-notif {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card);
+      border: 1px solid #fecaca;
+      border-radius: 16px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      animation: fadeUp 0.2s ease;
+      cursor: pointer;
+    }
+
+    .due-notif-info { display: flex; flex-direction: column; gap: 2px; }
+
+    .due-notif-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .due-notif-amt {
+      font-size: 0.78rem;
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    /* ===================== Tab bar ===================== */
+    .tab-bar {
+      display: flex;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 4px;
+      margin-bottom: 14px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      background: none;
+      border-radius: 26px;
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-3);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-mid);
+      color: #fff;
+    }
+
+    /* ===================== Debt card ===================== */
+    .debt-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s;
+      position: relative;
+    }
+
+    .debt-card:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); transform: translateY(-1px); }
+    .debt-card.drag-over { border-color: var(--primary-mid); opacity: 0.7; }
+    .debt-card[data-type="payable"] { border-right: 3px solid var(--danger); }
+    .debt-card[data-type="receivable"] { border-right: 3px solid var(--primary-mid); }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .card-name { font-weight: 800; font-size: 0.95rem; }
+    .card-note { font-size: 0.72rem; color: var(--text-3); margin-top: 1px; }
+
+    .type-badge {
+      margin-right: auto;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .type-badge.receivable { background: rgba(129, 140, 248, 0.2); color: #818cf8; }
+    .type-badge.payable    { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+
+    .card-amount {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .card-amount.done { color: #10b981; }
+
+    .progress-lbl {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      margin-bottom: 4px;
+    }
+
+    .progress-lbl .pct { color: var(--primary-mid); font-weight: 700; }
+    .progress-lbl .orig { color: var(--text-3); }
+
+    .progress-track {
+      height: 6px;
+      background: var(--bg);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary-mid);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-fill.done { background: #10b981; }
+
+    .history-panel {
+      display: none;
+      margin-top: 10px;
+      animation: fadeUp 0.18s ease;
+    }
+
+    .amounts-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .amount-cell {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .amount-cell .ac-lbl {
+      font-size: 0.62rem;
+      color: var(--text-3);
+      font-weight: 600;
+    }
+
+    .amount-cell .ac-val {
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .amount-cell.ac-blue .ac-val { color: var(--primary-mid); }
+    .amount-cell.ac-green .ac-val { color: #10b981; }
+
+    .hist-list {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+
+    .hist-hdr {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-3);
+      margin-bottom: 6px;
+    }
+
+    .hist-item {
+      display: flex;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 0.78rem;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .hist-item:last-child { border: none; padding-bottom: 0; }
+    .hist-item:hover { opacity: 0.8; }
+
+    .hist-amt {
+      font-weight: 800;
+      color: #10b981;
+      min-width: 80px;
+    }
+
+    .hist-amt.scheduled { color: var(--text-3); }
+    .hist-amt.due { color: var(--danger); }
+
+    .hist-note {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--text-3);
+      font-size: 0.7rem;
+    }
+
+    .hist-date {
+      margin-right: auto;
+      color: var(--text-3);
+      direction: ltr;
+      font-size: 0.7rem;
+    }
+
+    .sched-badge {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid #fed7aa;
+      border-radius: 4px;
+      padding: 1px 5px;
+      flex-shrink: 0;
+      margin-right: 4px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .bcard {
+      font-family: var(--font);
+      padding: 9px 11px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      justify-content: center;
+    }
+
+    .bcard-pay   { background: rgba(129, 140, 248, 0.2); color: #818cf8; flex: 2; }
+    .bcard-sched { background: var(--bg); color: var(--text-2); border: 1px solid var(--border); flex: 1; }
+    .bcard-del   { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+    .bcard-share { background: var(--bg); color: var(--text-2); border: 1px solid var(--border); }
+    .bcard-done  { background: rgba(16, 185, 129, 0.2); color: #10b981; flex: 2; cursor: default; }
+
+    /* ===================== Person card ===================== */
+    .person-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+
+    .person-card:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+
+    .person-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .person-name { font-weight: 800; font-size: 0.95rem; }
+    .person-count { font-size: 0.72rem; color: var(--text-3); }
+
+    .net-badge {
+      margin-right: auto;
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .net-pos  { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .net-neg  { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+    .net-zero { background: var(--bg); color: var(--text-3); }
+
+    .person-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+
+    .pstat {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .pstat-lbl {
+      font-size: 0.62rem;
+      color: var(--text-3);
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .pstat-val { font-size: 0.88rem; font-weight: 900; }
+
+    /* ===================== Budget page ===================== */
+    .budget-header {
+      background: var(--primary);
+      border-radius: 24px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .budget-header .bh-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .budget-header .bh-lbl {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .budget-header .bh-val {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .budget-header .bh-rem {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #6ee7b7;
+    }
+
+    .seg-bar {
+      display: flex;
+      height: 8px;
+      border-radius: 8px;
+      overflow: hidden;
+      gap: 2px;
+      margin: 12px 0 6px;
+    }
+
+    .seg-piece { border-radius: 4px; min-width: 2px; }
+
+    .budget-legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+    .cat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+
+    .cat-card:hover { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); }
+
+    .cat-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .cat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .cat-name { font-size: 0.9rem; font-weight: 700; flex: 1; }
+    .cat-pct  { font-size: 0.78rem; font-weight: 700; }
+
+    .cat-nums {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-3);
+      margin-bottom: 6px;
+    }
+
+    .linked-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(129, 140, 248, 0.2);
+      color: #818cf8;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+
+    .suggestion-card {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid #6ee7b7;
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .sug-icon {
+      width: 36px;
+      height: 36px;
+      background: #10b981;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .sug-title { font-size: 0.88rem; font-weight: 700; color: #10b981; }
+    .sug-body  { font-size: 0.78rem; color: var(--text-2); margin-top: 2px; }
+
+    /* ===================== Settings page ===================== */
+    .settings-section { margin-bottom: 20px; }
+
+    .settings-section h3 {
+      font-size: 0.78rem;
+      color: var(--text-3);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .setting-row {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+
+    .setting-row:hover { border-color: var(--primary-mid); }
+
+    .setting-label { font-size: 0.88rem; font-weight: 600; }
+    .setting-value { font-size: 0.82rem; color: var(--text-3); }
+
+    .toggle {
+      width: 44px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 12px;
+      position: relative;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+
+    .toggle.on { background: var(--primary-mid); }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .toggle.on::after { transform: translateX(-20px); }
+
+    .drive-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .drive-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .drive-dot.connected { background: #10b981; }
+    .drive-dot.idle      { background: var(--text-3); }
+    .drive-dot.syncing   { background: #f59e0b; animation: pulse 1s infinite; }
+    .drive-dot.error     { background: #f87171; }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    /* ===================== Statistics Page ===================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-3);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .stat-card .stat-value {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .stat-card .stat-trend {
+      font-size: 0.7rem;
+      margin-top: 4px;
+      color: #10b981;
+    }
+
+    .chart-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .strategy-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .strategy-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(129, 140, 248, 0.2);
+      color: #818cf8;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .strategy-content { flex: 1; }
+
+    .strategy-title {
+      font-weight: 800;
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+
+    .strategy-desc {
+      font-size: 0.72rem;
+      color: var(--text-3);
+    }
+
+    /* ===================== قائمة العملات مع الأعلام ===================== */
+    .currency-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .currency-item:hover {
+      background: var(--bg);
+      border-color: var(--primary-mid);
+    }
+
+    .currency-flag {
+      font-size: 1.4rem;
+      width: 32px;
+      text-align: center;
+    }
+
+    .currency-name {
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .currency-symbol {
+      font-weight: 800;
+      color: var(--primary-mid);
+      margin-left: 8px;
+    }
+
+    /* ===================== Bottom nav ===================== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0; right: 0;
+      z-index: 1000;
+      height: calc(var(--nav-h) + var(--safe-b));
+      padding-bottom: var(--safe-b);
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(var(--bg-rgb,240 244 248), 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      display: flex;
+    }
+
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border: none;
+      background: none;
+      font-family: var(--font);
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--text-3);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .nav-btn i { font-size: 1.1rem; }
+    .nav-btn.active { color: var(--primary-mid); }
+
+    /* ===================== Modal ===================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: flex-start;     /* تبدأ من الأعلى لا الوسط */
+      justify-content: center;
+      z-index: 2000;
+      visibility: hidden;
+      opacity: 0;
+      transition: 0.2s;
+      padding: 16px;
+      overflow-y: auto;            /* تمرير إذا كانت النافذة أطول من الشاشة */
+    }
+    /* padding-top ديناميكي: يترك مسافة مناسبة من الأعلى */
+    .modal-overlay.active { padding-top: max(16px, 5vh); }
+
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .modal-ico {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .modal-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-3);
+    }
+
+    .input-wrap {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .input-wrap i {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      font-size: 0.9rem;
+    }
+
+    .input-wrap input,
+    .input-wrap select {
+      width: 100%;
+      padding: 14px 42px 14px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 0.9rem;
+    }
+
+    .input-wrap input:focus,
+    .input-wrap select:focus {
+      outline: none;
+      border-color: var(--primary-mid);
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .mbtn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+
+    .mbtn-cancel { background: var(--bg); color: var(--text-2); border: 1px solid var(--border); }
+    .mbtn-ok     { background: var(--primary-mid); color: #fff; }
+    .mbtn-del    { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+
+   /* ===================== Toast Container ===================== */
+#toast-container {
+  position: fixed;
+  top: 72px; /* أسفل الهيدر الثابت مباشرة */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9500;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  align-items: center;
+  width: max-content;
+  max-width: 90vw;
+}
+
+.toast {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  padding: 11px 22px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.25);
+  font-size: 0.87rem;
+  font-weight: 700;
+  color: var(--text);
+  animation: slideDown 0.25s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: auto;
+  text-align: center;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+  .toast { padding: 9px 16px; font-size: 0.82rem; }
+}
+
+    .toast.success { background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #6ee7b7; }
+    .toast.error { background: rgba(248, 113, 113, 0.2); color: #f87171; border-color: #fecaca; }
+    .toast.info { background: rgba(129, 140, 248, 0.2); color: #818cf8; border-color: #c7d2fe; }
+
+    /* Toast — وضع داكن */
+    [data-theme="dark"] .toast          { background:#1e293b !important; color:#e2e8f0 !important; border-color:#334155 !important; }
+    [data-theme="dark"] .toast.success  { background:#052e16 !important; color:#86efac !important; border-color:#166534 !important; }
+    [data-theme="dark"] .toast.error    { background:#450a0a !important; color:#fca5a5 !important; border-color:#991b1b !important; }
+    [data-theme="dark"] .toast.info     { background:#1e1b4b !important; color:#a5b4fc !important; border-color:#4338ca !important; }
+    @media (prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) .toast         { background:#1e293b !important; color:#e2e8f0 !important; }
+      :root:not([data-theme="light"]) .toast.success { background:#052e16 !important; color:#86efac !important; }
+      :root:not([data-theme="light"]) .toast.error   { background:#450a0a !important; color:#fca5a5 !important; }
+      :root:not([data-theme="light"]) .toast.info    { background:#1e1b4b !important; color:#a5b4fc !important; }
+    }
+
+    /* رسالة تراجع عن الحذف */
+    .toast-undo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toast-undo-btn {
+      background: rgba(255,255,255,.25);
+      border: 1px solid currentColor;
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-family: var(--font);
+      font-size: .78rem;
+      font-weight: 800;
+      color: inherit;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .toast-undo-btn:hover { background: rgba(255,255,255,.4); }
+
+    /* ===================== Empty state ===================== */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-3);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+
+    /* ===================== Animations ===================== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-up {
+      animation: fadeUp 0.3s ease forwards;
+    }
+
+    /* ===================== الوضع المظلم التلقائي ===================== */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --text: #f1f5f9;
+        --text-2: #cbd5e1;
+        --text-3: #94a3b8;
+        --border: #334155;
+      }
+    }
+
+    /* ===================== اختيار الأيقونة ===================== */
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      margin: 10px 0;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .icon-btn {
+      font-size: 1.4rem;
+      background: var(--bg);
+      border: 2px solid transparent;
+      border-radius: 10px;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover { border-color: var(--primary-mid); background: var(--card); }
+    .icon-btn.selected { border-color: var(--primary-mid); background: rgba(129,140,248,0.15); }
+
+    /* ===================== تنقل الأشهر ===================== */
+    .month-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .month-nav-btn {
+      background: rgba(255,255,255,.15);
+      border: none;
+      color: #fff;
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .month-nav-btn:active { opacity: .7; }
+    .month-nav-label {
+      font-size: .82rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.7);
+      cursor: pointer;
+    }
+
+    /* ===================== بطاقة المصروف ===================== */
+    .expense-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: .8rem;
+    }
+    .expense-item:last-child { border: none; }
+    .expense-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .expense-amt  { font-weight: 800; color: var(--danger); min-width: 80px; }
+    .expense-note { flex: 1; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .expense-date { color: var(--text-3); font-size: .72rem; direction: ltr; }
+
+    /* ===================== شارة الاستحقاق ===================== */
+    .due-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: .68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-top: 6px;
+    }
+    .due-badge.upcoming { background: rgba(245,158,11,.15); color: #f59e0b; border: 1px solid #fed7aa; }
+    .due-badge.overdue  { background: rgba(248,113,113,.15); color: #f87171; border: 1px solid #fecaca; }
+
+    /* ===================== شاشة التحميل ===================== */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #1e1b4b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity .4s ease;
+    }
+    .loader-ring {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 3px solid rgba(255,255,255,.15);
+      border-top-color: #a5b4fc;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+
+    /* ─── آلة حاسبة مدمجة ─── */
+    .calc-btn-wrap {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 5;
+    }
+    .calc-trigger {
+      background: none;
+      border: none;
+      color: var(--text-3);
+      cursor: pointer;
+      font-size: .95rem;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: color .15s, background .15s;
+    }
+    .calc-trigger:hover { color: var(--primary-mid); background: var(--bg); }
+
+    /* نافذة الآلة الحاسبة */
+    .calc-popup {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 4000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+    .calc-popup.open { opacity: 1; pointer-events: auto; }
+
+    .calc-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 18px;
+      width: min(340px, 94vw);
+      box-shadow: 0 20px 40px rgba(0,0,0,.3);
+      transform: translateY(20px);
+      transition: transform .2s;
+    }
+    .calc-popup.open .calc-box { transform: translateY(0); }
+
+    .calc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .calc-title { font-size: .85rem; font-weight: 700; color: var(--text-3); }
+    .calc-close {
+      background: none; border: none;
+      color: var(--text-3); cursor: pointer;
+      font-size: 1.1rem; padding: 2px 6px; border-radius: 6px;
+    }
+    .calc-close:hover { color: var(--text); background: var(--bg); }
+
+    /* شاشة العرض */
+    .calc-screen {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      min-height: 72px;
+      direction: ltr;
+      text-align: right;
+    }
+    .calc-expr {
+      font-size: .72rem;
+      color: var(--text-3);
+      min-height: 16px;
+      word-break: break-all;
+    }
+    .calc-val {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.1;
+      word-break: break-all;
+    }
+
+    /* سجل العمليات */
+    .calc-history {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      max-height: 80px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      padding: 4px 8px;
+      display: none;
+    }
+    .calc-history.has-items { display: block; }
+    .calc-hist-row {
+      font-size: .7rem;
+      color: var(--text-3);
+      padding: 2px 0;
+      border-bottom: 1px dashed var(--border);
+      direction: ltr;
+      text-align: right;
+      cursor: pointer;
+    }
+    .calc-hist-row:last-child { border: none; }
+    .calc-hist-row:hover { color: var(--primary-mid); }
+
+    /* أزرار الحاسبة */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+    .cbtn {
+      font-family: var(--font);
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 13px 4px;
+      cursor: pointer;
+      transition: opacity .1s, transform .1s;
+      color: var(--text);
+    }
+    .cbtn:active { opacity: .75; transform: scale(.95); }
+    .cbtn-num  { background: var(--bg); }
+    .cbtn-op   { background: rgba(129,140,248,.15); color: var(--primary-mid); }
+    .cbtn-eq   { background: var(--primary-mid); color: #fff; }
+    .cbtn-clr  { background: rgba(248,113,113,.15); color: #f87171; }
+    .cbtn-use  { background: rgba(16,185,129,.2); color: #10b981; font-size: .82rem; grid-column: span 2; }
+
+    /* زر الحاسبة في حقول الإدخال (input-wrap) */
+    /* ── زر الحاسبة في حقول الإدخال — RTL: اليسار ── */
+    .input-wrap.has-calc { position: relative; }
+    .input-wrap.has-calc input  { padding-left: 42px !important; }
+    .input-wrap.has-calc .calc-btn-wrap {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--primary-mid);
+      font-size: 1rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s;
+    }
+    .input-wrap.has-calc .calc-btn-wrap:hover { background: var(--border); }
+    /* الأيقونة i داخل btn لا تحتاج position absolute */
+    .input-wrap.has-calc .calc-btn-wrap i { position: static; transform: none; }
+
+
+
+    /* ─── الأرشيف ─── */
+    .archive-filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .archive-search {
+      flex: 1;
+      min-width: 160px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: .88rem;
+    }
+    .archive-search:focus { outline: none; border-color: var(--primary-mid); }
+    .debt-card.archived  { opacity: .72; border-right-color: var(--text-3) !important; }
+    .debt-card.done-card { border-right-color: #10b981 !important; }
+    .status-badge-done   {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(16,185,129,.15); color: #10b981;
+      border-radius: 20px; font-size: .68rem; font-weight: 700;
+      padding: 2px 8px; margin-right: auto;
+    }
+    .status-badge-arch   {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(148,163,184,.15); color: var(--text-3);
+      border-radius: 20px; font-size: .68rem; font-weight: 700;
+      padding: 2px 8px; margin-right: auto;
+    }
+
+        /* ─── إصلاح التباين في الوضع الداكن ─── */
+    [data-theme="dark"] .dropdown-item .item-title,
+    [data-theme="dark"] .dropdown-item .item-sub,
+    [data-theme="dark"] .setting-label,
+    [data-theme="dark"] .setting-value,
+    [data-theme="dark"] .modal-title,
+    [data-theme="dark"] .modal-subtitle,
+    [data-theme="dark"] .cat-name,
+    [data-theme="dark"] .person-name,
+    [data-theme="dark"] .card-name,
+    [data-theme="dark"] .hist-hdr,
+    [data-theme="dark"] .pstat-lbl,
+    [data-theme="dark"] .amount-cell .ac-lbl,
+    [data-theme="dark"] .strategy-title,
+    [data-theme="dark"] .strategy-desc { color: var(--text); }
+
+    [data-theme="dark"] .dropdown-item .item-sub,
+    [data-theme="dark"] .setting-value,
+    [data-theme="dark"] .modal-subtitle,
+    [data-theme="dark"] .hist-hdr,
+    [data-theme="dark"] .pstat-lbl,
+    [data-theme="dark"] .amount-cell .ac-lbl,
+    [data-theme="dark"] .strategy-desc { color: var(--text-3); }
+
+    /* بطاقات الإحصاء في الوضع الداكن */
+    [data-theme="dark"] .stat-card .stat-label { color: var(--text-3); }
+    [data-theme="dark"] .stat-card .stat-value { color: var(--text); }
+
+    /* بطاقات المبالغ */
+    [data-theme="dark"] .amount-cell { background: rgba(255,255,255,.04); }
+    [data-theme="dark"] .amount-cell .ac-val { color: var(--text); }
+
+    /* نافذة الآلة الحاسبة */
+    [data-theme="dark"] .calc-box { background: var(--card); }
+    [data-theme="dark"] .cbtn-num { background: rgba(255,255,255,.06); }
+    [data-theme="dark"] .cbtn-op  { background: rgba(129,140,248,.2); }
+
+    /* media dark fallback */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .dropdown-item .item-title { color: var(--text); }
+      :root:not([data-theme="light"]) .setting-label { color: var(--text); }
+      :root:not([data-theme="light"]) .modal-title   { color: var(--text); }
+      :root:not([data-theme="light"]) .card-name     { color: var(--text); }
+    }
+
+    /* ===================== توافقية محسنة للشاشات الكبيرة ===================== */
+    @media (min-width: 768px) {
+      body { max-width: 600px; margin: 0 auto; }
+      .fab { max-width: 400px; left: 50%; }
+      .settings-dropdown { left: auto; right: 0; }
+      .bottom-nav { left: 50%; right: auto; transform: translateX(-50%); width: 600px; }
+    }
+
+    /* ===================== فاصل سفلي لمنع اختفاء المحتوى ===================== */
+    .page-spacer {
+      height: calc(var(--nav-h) + var(--fab-h) + 20px);
+      pointer-events: none;
+      width: 100%;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-BX9QFKmz.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BB_aRFOX.css">
+</head>
+<body>
+<!-- تطبيق الثيم فوراً لمنع الوميض -->
+<script>
+  (function() {
+    try {
+      const s = JSON.parse(localStorage.getItem('gt-dayn-backup') || '{}');
+      const savedTheme = (s.settings || []).find(x => x.key === 'theme')?.value;
+      // إذا لم يكن محفوظاً، نأخذ تفضيل النظام
+      const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch(e) {}
+  })();
+</script>
+
+<!-- تسجيل Service Worker للعمل أوفلاين -->
+<script>
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .then(reg => {
+          console.log('[GT-DAYN] SW registered:', reg.scope);
+
+          // إشعار عند توفر تحديث
+          reg.addEventListener('updatefound', () => {
+            const nw = reg.installing;
+            nw?.addEventListener('statechange', () => {
+              if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                // تحديث متاح
+                console.log('[GT-DAYN] تحديث متاح — أعد تحميل الصفحة للتطبيق');
+              }
+            });
+          });
+        })
+        .catch(e => console.warn('[GT-DAYN] SW registration failed:', e));
+    });
+  }
+
+  // مؤشر حالة الاتصال
+  function _updateOnlineStatus() {
+    const bar = document.getElementById('offline-bar');
+    if (!bar) return;
+    if (navigator.onLine) {
+      bar.style.display = 'none';
+      document.body.classList.remove('offline');
+    } else {
+      bar.style.display = 'flex';
+      document.body.classList.add('offline');
+    }
+  }
+  // فحص الحالة الابتدائية
+  window.addEventListener('DOMContentLoaded', _updateOnlineStatus);
+  window.addEventListener('online',  _updateOnlineStatus);
+  window.addEventListener('offline', _updateOnlineStatus);
+
+  // openCalc stub — يُستدعى من HTML onclick قبل تحميل الـ module
+  window.openCalc  = function(id) {
+    // سيُستبدل بالتطبيق الكامل عند تحميل الـ module
+    document.addEventListener('gt-dayn:ready', function() {
+      if (window._openCalcFull) window._openCalcFull(id);
+    }, { once: true });
+  };
+
+</script>
+
+<!-- شريط "لا يوجد إنترنت" — يظهر فقط بدون اتصال -->
+<div id="offline-bar" style="
+  display: none;
+  position: fixed;
+  top: 62px;
+  left: 0; right: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  background: #92400e;
+  color: #fef3c7;
+  font-family: var(--font);
+  font-size: .75rem;
+  font-weight: 700;
+  padding: 5px 16px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 800;
+">
+  <i class="fa-solid fa-wifi" style="opacity:.7;"></i>
+  وضع عدم الاتصال — البيانات محفوظة محلياً
+</div>
+<div id="loading-screen">
+  <div style="font-size:2rem;font-weight:900;color:#fff;letter-spacing:-.5px;margin-bottom:6px;">
+    GT-<span style="color:#a5b4fc;">DAYN</span>
+  </div>
+  <div style="font-size:.75rem;color:rgba(255,255,255,.45);margin-bottom:28px;">أداة إدارة الديون و المصاريف</div>
+  <div class="loader-ring"></div>
+</div>
+
+<!-- ===================== الهيدر ===================== -->
+<header>
+  <div class="header-title-wrapper">
+    <div id="header-title">GT-<span>DAYN</span></div>
+    <div class="app-subtitle">أداة إدارة الديون و المصاريف</div>
+  </div>
+
+  <div id="search-bar">
+    <input type="text" id="search-input" placeholder="ابحث عن اسم أو دين..."
+           oninput="onSearch(this.value)"
+           onkeydown="if(event.key==='Enter')this.blur()">
+    <button class="btn btn-ghost" style="padding:0 10px;height:36px;font-size:.8rem;border:none;background:var(--bg);color:var(--text);border-radius:30px;cursor:pointer;" onclick="closeSearch()">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <div class="header-actions">
+    <button class="btn-icon btn" onclick="openSearch()" id="btn-search" style="background:none;border:none;color:var(--text-3);font-size:1.2rem;cursor:pointer;">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+    <button class="btn-icon btn" onclick="toggleSettingsDropdown(event)" id="btn-menu" style="background:none;border:none;color:var(--text-3);font-size:1.2rem;cursor:pointer;">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- قائمة الإعدادات المنسدلة -->
+    <div class="settings-dropdown" id="settings-dropdown">
+      <div class="dropdown-item" onclick="quickAction('drive')">
+        <i class="fa-brands fa-google-drive" style="color:#4285f4;"></i>
+        <div class="item-content">
+          <div class="item-title">Google Drive</div>
+          <div class="item-sub" id="dropdown-drive-status">غير متصل</div>
+        </div>
+      </div>
+
+      <div class="dropdown-item" onclick="quickAction('currency')">
+        <i class="fa-solid fa-coins"></i>
+        <div class="item-content">
+          <div class="item-title">العملة</div>
+          <div class="item-sub" id="dropdown-currency">د.م</div>
+        </div>
+      </div>
+
+      <div class="dropdown-item" onclick="quickAction('theme')">
+        <i class="fa-solid fa-moon"></i>
+        <div class="item-content">
+          <div class="item-title">الوضع الليلي</div>
+          <div class="item-sub" id="dropdown-theme">تلقائي</div>
+        </div>
+      </div>
+
+      <div class="dropdown-divider"></div>
+
+      <div class="dropdown-item" onclick="quickAction('backup-json')">
+        <i class="fa-solid fa-file-code" style="color:#10b981;"></i>
+        <div class="item-content">
+          <div class="item-title">حفظ نسخة JSON</div>
+          <div class="item-sub">نسخة احتياطية بصيغة JSON</div>
+        </div>
+      </div>
+
+      <div class="dropdown-item" onclick="quickAction('backup-sqlite')">
+        <i class="fa-solid fa-database" style="color:#8b5cf6;"></i>
+        <div class="item-content">
+          <div class="item-title">حفظ قاعدة البيانات</div>
+          <div class="item-sub">ملف SQLite كامل</div>
+        </div>
+      </div>
+
+      <div class="dropdown-item" onclick="quickAction('share-json')">
+        <i class="fa-solid fa-share-from-square" style="color:#10b981;"></i>
+        <div class="item-content">
+          <div class="item-title">مشاركة نسخة JSON</div>
+          <div class="item-sub">مشاركة عبر التطبيقات</div>
+        </div>
+      </div>
+
+      <div class="dropdown-item" onclick="quickAction('share-sqlite')">
+        <i class="fa-solid fa-share-nodes" style="color:#8b5cf6;"></i>
+        <div class="item-content">
+          <div class="item-title">مشاركة قاعدة البيانات</div>
+          <div class="item-sub">مشاركة ملف SQLite</div>
+        </div>
+      </div>
+
+      <div class="dropdown-item" onclick="quickAction('import')">
+        <i class="fa-solid fa-file-arrow-up"></i>
+        <div class="item-content">
+          <div class="item-title">استيراد بيانات</div>
+          <div class="item-sub">استعادة نسخة احتياطية</div>
+        </div>
+      </div>
+
+      <div class="dropdown-divider"></div>
+
+      <div class="dropdown-item" onclick="quickAction('calc')">
+        <i class="fa-solid fa-calculator" style="color:var(--primary-mid);"></i>
+        <div class="item-content">
+          <div class="item-title">آلة حاسبة</div>
+          <div class="item-sub">حاسبة مستقلة مع سجل</div>
+        </div>
+      </div>
+
+      <div class="dropdown-item" onclick="quickAction('stats')">
+        <i class="fa-solid fa-chart-pie"></i>
+        <div class="item-content">
+          <div class="item-title">الإحصائيات</div>
+          <div class="item-sub">عرض التقارير</div>
+        </div>
+      </div>
+
+      <div class="dropdown-item" onclick="quickAction('reset')" style="color:#f87171;">
+        <i class="fa-solid fa-trash-can" style="color:#f87171;"></i>
+        <div class="item-content">
+          <div class="item-title">حذف كل البيانات</div>
+          <div class="item-sub">عملية لا يمكن التراجع عنها</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== الصفحات ===================== -->
+<div id="app-scroll">
+
+<!-- صفحة الديون -->
+<div id="page-debts" class="page">
+  <div class="summary-banner" id="summary-banner">
+    <div class="month-row">
+      <span class="month-lbl" id="banner-month"></span>
+      <button class="btn" style="background:rgba(255,255,255,.15);color:#fff;padding:4px 10px;font-size:.72rem;border-radius:20px;border:none;cursor:pointer;" onclick="navigateTo('budget')">
+        <i class="fa-solid fa-wallet"></i> الميزانية
+      </button>
+    </div>
+    <div class="banner-grid">
+      <div class="banner-cell">
+        <div class="b-lbl">لي عند</div>
+        <div class="b-val receivable" id="b-receivable">0</div>
+      </div>
+      <div class="banner-divider"></div>
+      <div class="banner-cell">
+        <div class="b-lbl">الصافي</div>
+        <div class="b-val" id="b-net">0</div>
+      </div>
+      <div class="banner-divider"></div>
+      <div class="banner-cell">
+        <div class="b-lbl">عليّ</div>
+        <div class="b-val payable" id="b-payable">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="due-container"></div>
+
+  <!-- Filter bar -->
+  <div id="filter-bar" style="display:none;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:10px 14px;margin-bottom:12px;">
+    <span style="font-size:.85rem;font-weight:700;">
+      <i class="fa-solid fa-circle-check" style="color:#10b981;margin-left:6px;"></i>
+      <span id="filter-bar-name"></span>
+    </span>
+    <button onclick="clearFilter()" style="background:none;border:none;font-family:var(--font);font-size:.82rem;font-weight:700;color:var(--text-3);cursor:pointer;">
+      <i class="fa-solid fa-xmark"></i> الكل
+    </button>
+  </div>
+
+  <!-- Sort/Type tabs -->
+  <div class="tab-bar" id="debt-tabs" style="flex-wrap:nowrap;overflow-x:auto;">
+    <button class="tab-btn active" data-filter="all"        onclick="setDebtFilter('all',this)">الكل</button>
+    <button class="tab-btn"        data-filter="receivable" onclick="setDebtFilter('receivable',this)">لي عند</button>
+    <button class="tab-btn"        data-filter="payable"    onclick="setDebtFilter('payable',this)">عليّ</button>
+    <button class="tab-btn"        data-filter="done"       onclick="setDebtFilter('done',this)" style="white-space:nowrap;">✅ مكتمل</button>
+    <button class="tab-btn"        data-filter="archived"   onclick="setDebtFilter('archived',this)" style="white-space:nowrap;">🗂 أرشيف</button>
+  </div>
+  <!-- بحث الأرشيف -->
+  <div id="archive-search-bar" style="display:none;margin-bottom:12px;">
+    <input class="archive-search" id="archive-search-inp"
+      placeholder="ابحث بالاسم، الهاتف، التاريخ، المبلغ..."
+      oninput="onArchiveSearch(this.value)">
+  </div>
+
+  <div id="debts-container"></div>
+
+  <!-- فاصل سفلي -->
+  <div class="page-spacer"></div>
+
+  <button class="fab" onclick="openAddDebtModal()">
+    <i class="fa-solid fa-plus"></i> إضافة دين
+  </button>
+</div>
+
+<!-- صفحة الأشخاص -->
+<div id="page-persons" class="page" style="display:none;">
+  <div id="persons-container"></div>
+  <div class="page-spacer"></div>
+  <button class="fab" onclick="openAddPersonModal()">
+    <i class="fa-solid fa-user-plus"></i> إضافة شخص
+  </button>
+</div>
+
+<!-- صفحة ملف الشخص -->
+<div id="page-person-profile" class="page" style="display:none;">
+  <!-- هيدر الصفحة -->
+  <div style="background:var(--primary);border-radius:24px;padding:18px 20px;margin-bottom:14px;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+      <button onclick="backToPersons()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:1rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+      <div id="profile-avatar" style="width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:900;flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <div id="profile-name" style="font-size:1.1rem;font-weight:900;color:#fff;"></div>
+        <div id="profile-phone-row" style="display:none;align-items:center;gap:6px;margin-top:2px;">
+          <span id="profile-phone-lbl" style="font-size:.72rem;color:rgba(255,255,255,.55);"></span>
+          <button id="profile-copy-phone" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:6px;padding:2px 7px;font-size:.65rem;cursor:pointer;">نسخ</button>
+        </div>
+      </div>
+      <button onclick="sharePersonReport()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:7px 14px;border-radius:20px;font-family:var(--font);font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;flex-shrink:0;">
+        <i class="fa-solid fa-share-nodes"></i> تقرير
+      </button>
+    </div>
+    <!-- إحصاء ثلاثي -->
+    <div style="display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;">
+      <div style="text-align:center;padding:0 6px;">
+        <div style="font-size:.65rem;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:3px;">لي عنده</div>
+        <div id="profile-receivable" style="font-size:1.05rem;font-weight:900;color:#a5b4fc;">0</div>
+      </div>
+      <div style="background:rgba(255,255,255,.12);margin:2px 0;"></div>
+      <div style="text-align:center;padding:0 6px;">
+        <div style="font-size:.65rem;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:3px;">الصافي</div>
+        <div id="profile-net" style="font-size:1.05rem;font-weight:900;color:#fff;">0</div>
+      </div>
+      <div style="background:rgba(255,255,255,.12);margin:2px 0;"></div>
+      <div style="text-align:center;padding:0 6px;">
+        <div style="font-size:.65rem;color:rgba(255,255,255,.5);font-weight:600;margin-bottom:3px;">عليّ له</div>
+        <div id="profile-payable" style="font-size:1.05rem;font-weight:900;color:#fca5a5;">0</div>
+      </div>
+    </div>
+  </div>
+  <!-- تبويبات -->
+  <div class="tab-bar" id="profile-tabs" style="margin-bottom:14px;">
+    <button class="tab-btn active" onclick="setProfileTab('all',this)">الكل</button>
+    <button class="tab-btn" onclick="setProfileTab('receivable',this)">لي عند</button>
+    <button class="tab-btn" onclick="setProfileTab('payable',this)">عليّ</button>
+  </div>
+  <div id="profile-debts-container"></div>
+  <div class="page-spacer"></div>
+  <button class="fab" onclick="openAddDebtModal(window._profilePersonId)">
+    <i class="fa-solid fa-plus"></i> دين جديد
+  </button>
+</div>
+
+<!-- صفحة الميزانية -->
+<div id="page-budget" class="page" style="display:none;">
+  <div class="budget-header" id="budget-header">
+    <!-- تنقل الأشهر -->
+    <div class="month-nav">
+      <button class="month-nav-btn" onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-right"></i></button>
+      <span class="month-nav-label" id="budget-month-lbl" onclick="goToCurrentMonth()">...</span>
+      <button class="month-nav-btn" onclick="changeMonth(1)"><i class="fa-solid fa-chevron-left"></i></button>
+    </div>
+    <div class="bh-row">
+      <div>
+        <div class="bh-lbl">الدخل / الميزانية</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="bh-val" id="budget-income-lbl">0</div>
+          <button onclick="promptIncome()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:3px 10px;border-radius:20px;font-family:var(--font);font-size:.72rem;cursor:pointer;font-weight:700;">تعديل</button>
+        </div>
+      </div>
+      <div style="text-align:left;">
+        <div class="bh-lbl">المتبقي</div>
+        <div class="bh-rem" id="budget-remaining-lbl">0</div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.4);margin-top:2px;" id="budget-pct-lbl"></div>
+      </div>
+    </div>
+    <div class="seg-bar" id="budget-seg-bar"></div>
+    <div class="budget-legend" id="budget-legend"></div>
+  </div>
+
+  <div id="budget-suggestion"></div>
+  <div id="cats-container"></div>
+
+  <div class="page-spacer"></div>
+  <button class="fab" onclick="openAddCatModal()">
+    <i class="fa-solid fa-plus"></i> إضافة فئة
+  </button>
+</div>
+
+<!-- صفحة الإعدادات -->
+<div id="page-settings" class="page" style="display:none;">
+  <div class="settings-section">
+    <h3>الحساب والمزامنة</h3>
+    <div class="setting-row" onclick="handleDriveAction()">
+      <div>
+        <div class="setting-label"><i class="fa-brands fa-google-drive" style="margin-left:8px;color:#4285f4;"></i>Google Drive</div>
+        <div class="setting-value" id="drive-email"></div>
+      </div>
+      <div class="drive-status">
+        <div class="drive-dot idle" id="drive-dot"></div>
+        <span id="drive-status-lbl">غير متصل</span>
+      </div>
+    </div>
+    <div class="setting-row" onclick="uploadDrive()" id="btn-drive-upload" style="display:none;">
+      <div class="setting-label"><i class="fa-solid fa-cloud-arrow-up" style="margin-left:8px;color:var(--primary-mid);"></i>رفع نسخة احتياطية</div>
+      <div class="setting-value" id="last-sync-lbl"></div>
+    </div>
+    <div class="setting-row" onclick="downloadDrive()" id="btn-drive-download" style="display:none;">
+      <div class="setting-label"><i class="fa-solid fa-cloud-arrow-down" style="margin-left:8px;color:#10b981;"></i>استعادة من Drive</div>
+      <span style="font-size:.75rem;color:var(--text-3);">سيُعيد كتابة البيانات المحلية</span>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>التفضيلات</h3>
+    <div class="setting-row" onclick="openCurrencyModal()">
+      <div class="setting-label"><i class="fa-solid fa-coins" style="margin-left:8px;"></i>العملة</div>
+      <div class="setting-value" id="currency-lbl">د.م (MAD)</div>
+    </div>
+    <div class="setting-row" onclick="toggleTheme()">
+      <div class="setting-label"><i class="fa-solid fa-moon" style="margin-left:8px;"></i><span id="theme-text">الوضع: فاتح ☀️</span></div>
+      <div class="toggle" id="theme-toggle"></div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>الأمان والخصوصية</h3>
+    <div class="setting-row" onclick="togglePasswordLock()">
+      <div style="flex:1;">
+        <div class="setting-label"><i class="fa-solid fa-lock" style="margin-left:8px;"></i>قفل فتح التطبيق</div>
+        <div class="setting-value" id="pwd-status">غير مفعّل</div>
+      </div>
+      <div class="toggle" id="pwd-toggle"></div>
+    </div>
+    <div class="setting-row" onclick="window.toggleDeleteLock()">
+      <div style="flex:1;">
+        <div class="setting-label"><i class="fa-solid fa-trash-can" style="margin-left:8px;color:#f87171;"></i>قفل عمليات الحذف</div>
+        <div class="setting-value" id="del-lock-status">غير مفعّل</div>
+      </div>
+      <div class="toggle" id="del-lock-toggle"></div>
+    </div>
+    <div class="setting-row" onclick="window.toggleEditLock()">
+      <div style="flex:1;">
+        <div class="setting-label"><i class="fa-solid fa-pen-to-square" style="margin-left:8px;color:#f59e0b;"></i>قفل عمليات التعديل</div>
+        <div class="setting-value" id="edit-lock-status">غير مفعّل</div>
+      </div>
+      <div class="toggle" id="edit-lock-toggle"></div>
+    </div>
+    <div id="change-pwd-row" class="setting-row" style="display:none;" onclick="openChangePwd()">
+      <div class="setting-label"><i class="fa-solid fa-rotate" style="margin-left:8px;"></i>تغيير كلمة المرور</div>
+      <i class="fa-solid fa-chevron-left" style="color:var(--text-3);font-size:.8rem;"></i>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>حفظ النسخ الاحتياطية</h3>
+    <!-- حفظ نسخة JSON مع اختيار المكان -->
+    <div class="setting-row" onclick="window.backupDownloadWithPicker('json')">
+      <div style="flex:1;">
+        <div class="setting-label"><i class="fa-solid fa-file-code" style="margin-left:8px;color:#10b981;"></i>حفظ نسخة احتياطية (JSON)</div>
+        <div class="setting-value" style="font-size:.72rem;color:var(--text-3);">اختيار المجلد عبر مدير الملفات</div>
+      </div>
+      <i class="fa-solid fa-folder-open" style="color:var(--text-3);font-size:.8rem;"></i>
+    </div>
+    <!-- حفظ قاعدة البيانات مع اختيار المكان -->
+    <div class="setting-row" onclick="window.backupDownloadWithPicker('sqlite')">
+      <div style="flex:1;">
+        <div class="setting-label"><i class="fa-solid fa-database" style="margin-left:8px;color:#8b5cf6;"></i>حفظ قاعدة البيانات (SQLite)</div>
+        <div class="setting-value" style="font-size:.72rem;color:var(--text-3);">اختيار المجلد عبر مدير الملفات</div>
+      </div>
+      <i class="fa-solid fa-folder-open" style="color:var(--text-3);font-size:.8rem;"></i>
+    </div>
+    <!-- المجلد الأخير -->
+    <div id="last-save-path-row" class="setting-row" style="display:none;" onclick="window.backupToLastPath()">
+      <div style="flex:1;">
+        <div class="setting-label"><i class="fa-solid fa-rotate-left" style="margin-left:8px;color:var(--primary-mid);"></i>الحفظ في المجلد السابق</div>
+        <div class="setting-value" id="last-save-path" style="font-size:.7rem;color:var(--text-3);"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>الحفظ التلقائي <span style="font-size:.75rem;color:var(--primary-mid);">(مُفعل افتراضياً)</span></h3>
+    <div class="setting-row" onclick="window.toggleAutoBackup()">
+      <div style="flex:1;">
+        <div class="setting-label"><i class="fa-solid fa-clock-rotate-left" style="margin-left:8px;color:#10b981;"></i>حفظ نسخة مع كل تعديل</div>
+        <div class="setting-value" id="auto-backup-status" style="font-size:.72rem;color:var(--text-3);">مُفعّل — نسخة احتياطية تلقائية</div>
+      </div>
+      <div class="toggle active" id="auto-backup-toggle"></div>
+    </div>
+    <div id="auto-backup-path-row" class="setting-row" style="display:none;">
+      <div style="flex:1;">
+        <div class="setting-label"><i class="fa-solid fa-folder" style="margin-left:8px;color:var(--text-3);"></i>مجلد النسخ التلقائية</div>
+        <div class="setting-value" id="auto-backup-path" style="font-size:.7rem;color:var(--text-3);">لم يُحدد</div>
+      </div>
+    </div>
+    <div class="setting-row" onclick="window.chooseAutoBackupFolder()" id="choose-auto-folder-btn">
+      <div class="setting-label"><i class="fa-solid fa-folder-plus" style="margin-left:8px;color:#8b5cf6;"></i>اختيار مجلد النسخ التلقائية</div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>مشاركة النسخ الاحتياطية</h3>
+    <!-- مشاركة JSON -->
+    <div class="setting-row" onclick="window.backupShare('json')">
+      <div style="flex:1;">
+        <div class="setting-label"><i class="fa-solid fa-share-from-square" style="margin-left:8px;color:#10b981;"></i>مشاركة نسخة احتياطية (JSON)</div>
+        <div class="setting-value" style="font-size:.72rem;color:var(--text-3);">مشاركة عبر التطبيقات المتاحة (واتساب، تيليغرام...)</div>
+      </div>
+      <i class="fa-solid fa-chevron-left" style="color:var(--text-3);font-size:.8rem;"></i>
+    </div>
+    <!-- مشاركة SQLite -->
+    <div class="setting-row" onclick="window.backupShare('sqlite')">
+      <div style="flex:1;">
+        <div class="setting-label"><i class="fa-solid fa-share-nodes" style="margin-left:8px;color:#8b5cf6;"></i>مشاركة قاعدة البيانات (SQLite)</div>
+        <div class="setting-value" style="font-size:.72rem;color:var(--text-3);">مشاركة ملف قاعدة البيانات عبر التطبيقات</div>
+      </div>
+      <i class="fa-solid fa-chevron-left" style="color:var(--text-3);font-size:.8rem;"></i>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>استيراد البيانات</h3>
+    <div class="setting-row" onclick="document.getElementById('import-input').click()">
+      <div class="setting-label"><i class="fa-solid fa-file-arrow-up" style="margin-left:8px;"></i>استيراد / استعادة نسخة</div>
+    </div>
+    <input type="file" id="import-input" accept=".json,.sqlite" style="display:none;" onchange="window.importBackup&&window.importBackup(event)">
+  </div>
+
+  <div class="settings-section">
+    <div class="setting-row" style="background:rgba(248,113,113,0.1);border-color:#fecaca;" onclick="confirmReset()">
+      <div class="setting-label" style="color:#f87171;"><i class="fa-solid fa-trash-can" style="margin-left:8px;"></i>حذف كل البيانات</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:24px 0 8px;border-top:1px solid var(--border);margin-top:8px;">
+    <div style="font-size:.9rem;font-weight:900;color:var(--text);margin-bottom:4px;">GT-<span style="color:var(--primary-mid);">DAYN</span></div>
+    <div style="font-size:.72rem;color:var(--text-3);margin-bottom:10px;">الإصدار 1.0.2</div>
+    <a href="https://github.com/SalehGNUTUX/GT-DAYN" target="_blank" rel="noopener"
+       style="display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:var(--primary-mid);text-decoration:none;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.3);padding:7px 16px;border-radius:20px;">
+      <i class="fa-brands fa-github"></i> GitHub — SalehGNUTUX/GT-DAYN
+    </a>
+    <div style="font-size:.68rem;color:var(--text-3);margin-top:10px;">
+      مرخّص تحت <strong>GNU GPLv3</strong> — مشروع مفتوح المصدر
+    </div>
+  </div>
+  <div class="page-spacer"></div>
+</div>
+
+<!-- صفحة الإحصائيات -->
+<div id="page-statistics" class="page" style="display:none;">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">إجمالي الديون</div>
+      <div class="stat-value" id="stat-total-debt">0</div>
+      <div class="stat-trend" id="stat-total-trend"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">ديون نشطة</div>
+      <div class="stat-value" id="stat-active-debts">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">المدفوع</div>
+      <div class="stat-value" id="stat-paid">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">المتبقي</div>
+      <div class="stat-value" id="stat-remaining">0</div>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="debtChart" style="width:100%; height:200px;"></canvas>
+  </div>
+
+  <div style="margin-bottom:14px;">
+    <div class="strategy-card" onclick="applySnowballStrategy()">
+      <div class="strategy-icon"><i class="fa-solid fa-snowflake"></i></div>
+      <div class="strategy-content">
+        <div class="strategy-title">استراتيجية كرة الثلج</div>
+        <div class="strategy-desc">سدد الديون الصغيرة أولاً لتبقى متحفزاً</div>
+      </div>
+      <i class="fa-solid fa-chevron-left" style="color:var(--text-3);"></i>
+    </div>
+    <div class="strategy-card" onclick="applyPriorityStrategy()">
+      <div class="strategy-icon"><i class="fa-solid fa-star"></i></div>
+      <div class="strategy-content">
+        <div class="strategy-title">سياسة تسديد الديون ذات الأولوية</div>
+        <div class="strategy-desc">ركز على الدين الأكبر أو الأعلى فائدة</div>
+      </div>
+      <i class="fa-solid fa-chevron-left" style="color:var(--text-3);"></i>
+    </div>
+  </div>
+
+  <div class="summary-banner" style="background:#10b981;">
+    <div style="text-align:center; width:100%;">
+      <div style="font-size:.8rem; opacity:0.8;">تاريخ التحرر من الديون المتوقع</div>
+      <div style="font-size:1.6rem; font-weight:900;" id="debt-free-date">2028-05-01</div>
+    </div>
+  </div>
+  <div class="page-spacer"></div>
+</div>
+
+<!-- شريط التنقل السفلي -->
+</div><!-- /#app-scroll -->
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="navigateTo('debts')" id="nav-debts">
+    <i class="fa-solid fa-money-bill-wave"></i>الديون
+  </button>
+  <button class="nav-btn" onclick="navigateTo('persons')" id="nav-persons">
+    <i class="fa-solid fa-users"></i>الأشخاص
+  </button>
+  <button class="nav-btn" onclick="navigateTo('budget')" id="nav-budget">
+    <i class="fa-solid fa-wallet"></i>الميزانية
+  </button>
+  <button class="nav-btn" onclick="navigateTo('statistics')" id="nav-statistics">
+    <i class="fa-solid fa-chart-pie"></i>الإحصائيات
+  </button>
+  <button class="nav-btn" onclick="navigateTo('settings')" id="nav-settings">
+    <i class="fa-solid fa-gear"></i>الإعدادات
+  </button>
+</nav>
+
+<!-- ===================== النوافذ المنبثقة ===================== -->
+
+<!-- نافذة إضافة دين -->
+<div class="modal-overlay" id="add-debt-modal" onclick="closeAllModals()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(129,140,248,0.2);color:#818cf8;"><i class="fa-solid fa-plus"></i></div>
+      <div>
+        <p class="modal-title" id="add-debt-title">دين جديد</p>
+        <p class="modal-subtitle">أضف التفاصيل</p>
+      </div>
+    </div>
+
+    <div class="tab-bar" style="margin-bottom:10px;">
+      <button class="tab-btn active" id="dtype-rec" onclick="setDebtType('receivable')">لي عند (يدينون لي)</button>
+      <button class="tab-btn" id="dtype-pay" onclick="setDebtType('payable')">عليّ (أنا المدين)</button>
+    </div>
+
+    <div class="input-wrap" style="position:relative;">
+      <i class="fa-regular fa-user"></i>
+      <select id="debt-person-select" style="padding-left:40px;">
+        <option value="">-- اختر شخصاً --</option>
+      </select>
+      <button type="button" onclick="window.toggleInlineNewPerson()"
+        style="position:absolute;left:8px;top:50%;transform:translateY(-50%);
+               background:var(--primary-lt);border:none;border-radius:8px;
+               width:26px;height:26px;font-size:1rem;font-weight:900;
+               cursor:pointer;color:var(--primary-mid);z-index:5;
+               display:flex;align-items:center;justify-content:center;"
+        title="إضافة شخص جديد">+</button>
+    </div>
+    <div id="inline-new-person" style="display:none;background:var(--bg);
+         border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:4px;">
+      <div style="font-size:.75rem;font-weight:700;color:var(--primary-mid);margin-bottom:8px;">
+        <i class="fa-solid fa-user-plus"></i> إضافة شخص جديد
+      </div>
+      <div class="input-wrap" style="margin-bottom:8px;">
+        <i class="fa-regular fa-user"></i>
+        <input type="text" id="inline-person-name" placeholder="الاسم (مطلوب)">
+      </div>
+      <div class="input-wrap" style="margin-bottom:8px;">
+        <i class="fa-solid fa-phone"></i>
+        <input type="tel" id="inline-person-phone" placeholder="الهاتف (اختياري)">
+      </div>
+      <button type="button" onclick="window.saveInlinePerson()"
+        style="background:var(--primary-mid);border:none;border-radius:10px;
+               color:#fff;font-family:var(--font);font-weight:700;font-size:.82rem;
+               padding:8px 18px;cursor:pointer;width:100%;">
+        <i class="fa-solid fa-user-check"></i> إضافة وتحديد
+      </button>
+    </div>
+
+    <div class="input-wrap">
+      <i class="fa-solid fa-tag"></i>
+      <input type="text" id="debt-title-inp" placeholder="وصف الدين (مثلاً: دين سيارة)">
+    </div>
+
+    <div class="input-wrap has-calc">
+      <i class="fa-solid fa-coins"></i>
+      <button class="calc-btn-wrap calc-trigger" type="button"
+              onclick="window.openCalc&&window.openCalc && window.openCalc('debt-amount-inp')" title="آلة حاسبة">
+        <i class="fa-solid fa-calculator"></i>
+      </button>
+      <input type="number" id="debt-amount-inp" placeholder="المبلغ" inputmode="decimal">
+    </div>
+
+    <div class="input-wrap">
+      <i class="fa-solid fa-coins"></i>
+      <select id="debt-currency-select">
+        <option value="">استخدام العملة الافتراضية</option>
+      </select>
+    </div>
+
+    <div class="input-wrap">
+      <i class="fa-solid fa-note-sticky"></i>
+      <input type="text" id="debt-note-inp" placeholder="ملاحظة (اختيارية)">
+    </div>
+
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إلغاء</button>
+      <button class="mbtn mbtn-ok" onclick="saveDebt()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة تسديد دفعة -->
+<div class="modal-overlay" id="pay-modal" onclick="closeAllModals()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(16,185,129,0.2);color:#10b981;"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+      <div>
+        <p class="modal-title" id="pay-title">تسديد دفعة</p>
+        <p class="modal-subtitle" id="pay-subtitle"></p>
+      </div>
+    </div>
+
+    <div class="input-wrap has-calc"><i class="fa-solid fa-coins"></i><button class="calc-btn-wrap calc-trigger" type="button" onclick="window.openCalc&&window.openCalc && window.openCalc('pay-amount')" title="آلة حاسبة"><i class="fa-solid fa-calculator"></i></button><input type="number" id="pay-amount" inputmode="decimal" placeholder="المبلغ"></div>
+    <div class="input-wrap"><input type="text" id="pay-note" placeholder="ملاحظة" style="padding-right:12px;"></div>
+    <div class="input-wrap"><input type="text" id="pay-date" inputmode="numeric" placeholder="YYYY-MM-DD" style="padding-right:12px;direction:ltr;text-align:right;"></div>
+
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إلغاء</button>
+      <button class="mbtn mbtn-ok" id="pay-confirm-btn">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة تعديل دفعة -->
+<div class="modal-overlay" id="edit-pay-modal" onclick="closeAllModals()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(129,140,248,.2);color:#818cf8;"><i class="fa-solid fa-pen-to-square"></i></div>
+      <div><p class="modal-title">تعديل الدفعة</p></div>
+    </div>
+
+    <div class="input-wrap has-calc"><i class="fa-solid fa-coins"></i><button class="calc-btn-wrap calc-trigger" type="button" onclick="window.openCalc&&window.openCalc && window.openCalc('epay-amount')" title="آلة حاسبة"><i class="fa-solid fa-calculator"></i></button><input type="number" id="epay-amount" inputmode="decimal" placeholder="المبلغ"></div>
+    <div class="input-wrap"><input type="text" id="epay-note" placeholder="ملاحظة" style="padding-right:12px;"></div>
+    <div class="input-wrap"><input type="text" id="epay-date" inputmode="numeric" placeholder="YYYY-MM-DD" style="direction:ltr;text-align:right;padding-right:12px;"></div>
+
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إلغاء</button>
+      <button class="mbtn mbtn-del" id="epay-del-btn">حذف</button>
+      <button class="mbtn mbtn-ok" id="epay-save-btn">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة جدولة الدفعات -->
+<div class="modal-overlay" id="schedule-modal" onclick="closeAllModals()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(129,140,248,0.2);color:#818cf8;"><i class="fa-solid fa-calendar-days"></i></div>
+      <div>
+        <p class="modal-title">جدولة الدفعات</p>
+        <p class="modal-subtitle" id="schedule-sub"></p>
+      </div>
+    </div>
+
+    <div class="input-wrap"><i class="fa-solid fa-list-ol"></i><input type="number" id="sched-count" inputmode="numeric" placeholder="عدد الدفعات"></div>
+    <div class="input-wrap"><i class="fa-solid fa-calendar-day"></i><input type="text" id="sched-start" inputmode="numeric" placeholder="YYYY-MM-DD" style="direction:ltr;text-align:right;padding-right:36px;"></div>
+
+    <div class="tab-bar" style="margin-bottom:10px;">
+      <button class="tab-btn active" id="sfreq-monthly" onclick="setSchedFreq('monthly',this)">شهرية</button>
+      <button class="tab-btn" id="sfreq-weekly" onclick="setSchedFreq('weekly',this)">أسبوعية</button>
+      <button class="tab-btn" id="sfreq-daily" onclick="setSchedFreq('daily',this)">يومية</button>
+    </div>
+
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إلغاء</button>
+      <button class="mbtn mbtn-ok" id="sched-confirm-btn">جدولة</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة إضافة شخص -->
+<div class="modal-overlay" id="person-modal" onclick="closeAllModals()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(129,140,248,0.2);color:#818cf8;"><i class="fa-solid fa-user-plus"></i></div>
+      <div><p class="modal-title" id="person-modal-title">شخص جديد</p></div>
+    </div>
+
+    <div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" id="person-name-inp" placeholder="الاسم"></div>
+    <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="tel" id="person-phone-inp" placeholder="رقم الجوال (اختياري)" inputmode="tel"></div>
+    <div class="input-wrap"><i class="fa-solid fa-note-sticky"></i><input type="text" id="person-note-inp" placeholder="ملاحظة (اختيارية)"></div>
+
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إلغاء</button>
+      <button class="mbtn mbtn-del" id="person-del-btn" style="display:none;" onclick="deletePerson()">حذف</button>
+      <button class="mbtn mbtn-ok" id="person-save-btn">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة إضافة/تعديل فئة -->
+<div class="modal-overlay" id="cat-modal" onclick="closeAllModals()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(245,158,11,0.2);color:#f59e0b;" id="cat-modal-ico">🗂️</div>
+      <div><p class="modal-title" id="cat-modal-title">فئة جديدة</p></div>
+    </div>
+
+    <!-- اختيار الأيقونة -->
+    <div style="margin-bottom:10px;">
+      <div style="font-size:.78rem;font-weight:700;color:var(--text-3);margin-bottom:6px;">اختر أيقونة</div>
+      <div class="icon-grid" id="cat-icon-grid"></div>
+      <input type="hidden" id="cat-icon-inp" value="💰">
+    </div>
+
+    <div class="input-wrap"><i class="fa-solid fa-tag"></i><input type="text" id="cat-name-inp" placeholder="اسم الفئة (مثل: تسوق)"></div>
+    <div class="input-wrap has-calc"><i class="fa-solid fa-coins"></i><button class="calc-btn-wrap calc-trigger" type="button" onclick="window.openCalc&&window.openCalc && window.openCalc('cat-cap-inp')" title="آلة حاسبة"><i class="fa-solid fa-calculator"></i></button><input type="number" id="cat-cap-inp" placeholder="الحد الشهري (0 = بلا حد)" inputmode="decimal"></div>
+
+    <!-- يوم الاستحقاق -->
+    <div class="input-wrap">
+      <i class="fa-solid fa-calendar-check"></i>
+      <input type="number" id="cat-due-day-inp" placeholder="يوم الاستحقاق الشهري (1-31، اختياري)" inputmode="numeric" min="1" max="31">
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <label style="font-size:.82rem;font-weight:700;color:var(--text-2);display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="cat-linked-cb" style="width:16px;height:16px;">
+        ربط تلقائي بمدفوعات الديون
+      </label>
+    </div>
+
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إلغاء</button>
+      <button class="mbtn mbtn-del" id="cat-del-btn" style="display:none;" onclick="deleteCat()">حذف</button>
+      <button class="mbtn mbtn-ok" id="cat-save-btn">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة تسجيل مصروف -->
+<div class="modal-overlay" id="expense-modal" onclick="closeAllModals()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(248,113,113,.2);color:#f87171;"><i class="fa-solid fa-receipt"></i></div>
+      <div><p class="modal-title">تسجيل مصروف</p><p class="modal-subtitle" id="expense-cat-name"></p></div>
+    </div>
+    <div class="input-wrap has-calc"><i class="fa-solid fa-coins"></i><button class="calc-btn-wrap calc-trigger" type="button" onclick="window.openCalc&&window.openCalc && window.openCalc('expense-amount-inp')" title="آلة حاسبة"><i class="fa-solid fa-calculator"></i></button><input type="number" id="expense-amount-inp" placeholder="المبلغ" inputmode="decimal"></div>
+    <div class="input-wrap"><i class="fa-solid fa-note-sticky"></i><input type="text" id="expense-note-inp" placeholder="وصف المصروف (اختياري)"></div>
+    <div class="input-wrap"><i class="fa-solid fa-calendar-day"></i><input type="text" id="expense-date-inp" placeholder="YYYY-MM-DD" style="direction:ltr;text-align:right;padding-right:36px;"></div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إلغاء</button>
+      <button class="mbtn mbtn-ok" id="expense-save-btn">تسجيل</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة اختيار العملة -->
+<div class="modal-overlay" id="currency-modal" onclick="closeAllModals()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(245,158,11,0.2);color:#f59e0b;"><i class="fa-solid fa-coins"></i></div>
+      <div><p class="modal-title">اختر العملة</p></div>
+    </div>
+    <div id="currency-list" style="max-height:400px; overflow-y:auto;"></div>
+    <div class="modal-btns" style="margin-top:14px;">
+      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة تأكيد -->
+<div class="modal-overlay" id="confirm-modal-overlay">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(248,113,113,0.2);color:#f87171;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <div><p class="modal-title">تأكيد</p></div>
+    </div>
+    <p id="confirm-msg" style="font-size:.88rem;color:var(--text-2);margin-bottom:14px;"></p>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" id="confirm-cancel">تراجع</button>
+      <button class="mbtn mbtn-del" id="confirm-ok">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<!-- شاشة قفل التطبيق -->
+<div id="lock-screen" style="display:none;position:fixed;inset:0;background:#1e1b4b;z-index:99999;flex-direction:column;align-items:center;justify-content:center;">
+  <div style="font-size:2rem;font-weight:900;color:#fff;margin-bottom:4px;">GT-<span style="color:#a5b4fc;">DAYN</span></div>
+  <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:32px;">أداة إدارة الديون و المصاريف</div>
+  <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px 24px;width:min(320px,88vw);text-align:center;">
+    <i class="fa-solid fa-lock" style="font-size:2rem;color:#a5b4fc;margin-bottom:12px;display:block;"></i>
+    <div style="font-size:.88rem;color:rgba(255,255,255,.65);margin-bottom:18px;font-weight:600;">أدخل كلمة المرور للمتابعة</div>
+    <input type="password" id="lock-pwd-inp"
+      style="width:100%;padding:13px 16px;border:1px solid rgba(255,255,255,.2);border-radius:12px;background:rgba(255,255,255,.08);color:#fff;font-family:var(--font);font-size:1rem;text-align:center;letter-spacing:4px;margin-bottom:8px;"
+      placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')unlockApp()">
+    <div id="lock-error" style="font-size:.75rem;color:#fca5a5;min-height:20px;margin-bottom:10px;"></div>
+    <button onclick="unlockApp()" style="width:100%;padding:13px;background:#4338ca;border:none;border-radius:12px;color:#fff;font-family:var(--font);font-size:.95rem;font-weight:800;cursor:pointer;">
+      <i class="fa-solid fa-unlock-keyhole"></i> فتح التطبيق
+    </button>
+  </div>
+</div>
+
+<!-- نافذة كلمة المرور -->
+<div class="modal-overlay" id="pwd-modal" onclick="closeAllModals()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(129,140,248,.2);color:#818cf8;"><i class="fa-solid fa-key"></i></div>
+      <div><p class="modal-title" id="pwd-modal-title">تعيين كلمة مرور</p></div>
+    </div>
+    <div id="pwd-current-wrap" style="display:none;">
+      <div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="pwd-current" placeholder="كلمة المرور الحالية"></div>
+    </div>
+    <div class="input-wrap"><i class="fa-solid fa-key"></i><input type="password" id="pwd-new" placeholder="كلمة المرور الجديدة (6 أحرف+)"></div>
+    <div class="input-wrap"><i class="fa-solid fa-check-double"></i><input type="password" id="pwd-confirm" placeholder="تأكيد كلمة المرور"></div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إلغاء</button>
+      <button class="mbtn mbtn-ok" id="pwd-save-btn" onclick="savePwd()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ آلة حاسبة مستقلة ══ -->
+<div class="calc-popup" id="calc-popup" onclick="if(event.target===this)closeCalc()">
+  <div class="calc-box">
+    <div class="calc-header">
+      <span class="calc-title">🧮 آلة حاسبة</span>
+      <button class="calc-close" onclick="closeCalc()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="calc-screen">
+      <div class="calc-expr" id="calc-expr"></div>
+      <div class="calc-val"  id="calc-val">0</div>
+    </div>
+    <div class="calc-history" id="calc-history"></div>
+    <div class="calc-grid">
+      <button class="cbtn cbtn-clr" onclick="calcInput('C')">C</button>
+      <button class="cbtn cbtn-clr" onclick="calcInput('DEL')">⌫</button>
+      <button class="cbtn cbtn-op"  onclick="calcInput('%')">%</button>
+      <button class="cbtn cbtn-op"  onclick="calcInput('/')">÷</button>
+
+      <button class="cbtn cbtn-num" onclick="calcInput('7')">7</button>
+      <button class="cbtn cbtn-num" onclick="calcInput('8')">8</button>
+      <button class="cbtn cbtn-num" onclick="calcInput('9')">9</button>
+      <button class="cbtn cbtn-op"  onclick="calcInput('*')">×</button>
+
+      <button class="cbtn cbtn-num" onclick="calcInput('4')">4</button>
+      <button class="cbtn cbtn-num" onclick="calcInput('5')">5</button>
+      <button class="cbtn cbtn-num" onclick="calcInput('6')">6</button>
+      <button class="cbtn cbtn-op"  onclick="calcInput('-')">−</button>
+
+      <button class="cbtn cbtn-num" onclick="calcInput('1')">1</button>
+      <button class="cbtn cbtn-num" onclick="calcInput('2')">2</button>
+      <button class="cbtn cbtn-num" onclick="calcInput('3')">3</button>
+      <button class="cbtn cbtn-op"  onclick="calcInput('+')">+</button>
+
+      <button class="cbtn cbtn-num" onclick="calcInput('0')" style="grid-column:span 2">0</button>
+      <button class="cbtn cbtn-num" onclick="calcInput('.')">.</button>
+      <button class="cbtn cbtn-eq"  onclick="calcInput('=')">＝</button>
+
+      <button class="cbtn cbtn-use" id="calc-use-btn" onclick="calcUseResult()" style="display:none;">
+        ✓ استخدم النتيجة
+      </button>
+    </div>
+  </div>
+</div>
+<!-- حاوية الإشعارات -->
+<!-- نافذة الدخل الشهري -->
+<div class="modal-overlay" id="income-modal" onclick="closeAllModals()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:320px;">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(16,185,129,.15);color:#10b981;">
+        <i class="fa-solid fa-wallet"></i>
+      </div>
+      <div>
+        <p class="modal-title">الدخل الشهري</p>
+        <p class="modal-subtitle">حدد ميزانية هذا الشهر</p>
+      </div>
+    </div>
+    <div class="input-wrap">
+      <i class="fa-solid fa-coins"></i>
+      <input type="number" id="income-inp" placeholder="المبلغ" inputmode="decimal"
+        onkeydown="if(event.key==='Enter')window.saveIncome()">
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeAllModals()">إلغاء</button>
+      <button class="mbtn mbtn-ok" onclick="window.saveIncome()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة تأكيد كلمة المرور -->
+<div class="modal-overlay" id="pwd-confirm-modal" onclick="event.stopPropagation()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:340px;">
+    <div class="modal-top">
+      <div class="modal-ico" style="background:rgba(248,113,113,.15);color:#f87171;">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div>
+        <p class="modal-title">تأكيد كلمة المرور</p>
+        <p class="modal-subtitle" id="pwd-confirm-action">تأكيد العملية</p>
+      </div>
+    </div>
+    <div class="input-wrap">
+      <i class="fa-solid fa-lock"></i>
+      <input type="password" id="pwd-confirm-inp" placeholder="أدخل كلمة المرور"
+        onkeydown="if(event.key==='Enter')window._submitPwdConfirm()">
+    </div>
+    <div id="pwd-confirm-err" style="color:#f87171;font-size:.75rem;min-height:18px;text-align:center;margin-bottom:4px;"></div>
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="window._cancelPwdConfirm()">إلغاء</button>
+      <button class="mbtn mbtn-ok" style="background:#f87171;" onclick="window._submitPwdConfirm()">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="toast-container"></div>
+
+</body>
+</html>
